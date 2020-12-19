@@ -81,13 +81,14 @@ class YoutubeModule():
                 info = self.get_info(url)
                 is_download = True
             except youtube_dl.utils.DownloadError as e:
-                if str(info.exc_info[1]) == 'Video unavailable':
+                if str(e.exc_info[1]) == 'Video unavailable':
                     info = e
                     break
+                info = e
             except Exception as e:
                 raise e
 
-            sleeptime = self.live_timer(info)
+            sleeptime = self.live_timer(info=info)
             time.sleep(sleeptime)
 
         if is_download == True:
