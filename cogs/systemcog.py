@@ -9,7 +9,7 @@ class SystemCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(name='bot')
+    @commands.group(name='system')
     async def botsystem(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('Error: Need Option!')
