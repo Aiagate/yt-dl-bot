@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import asyncio
 import discord
 from discord.ext import commands
 import property
@@ -10,11 +11,13 @@ class SystemCog(commands.Cog):
 
     @commands.group(name='bot')
     async def botsystem(self, ctx):
-        await ctx.send('Error: Need Option!')
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Error: Need Option!')
 
     @botsystem.command(name='close')
     async def botsystem_close(self, ctx):
         await self.bot.get_channel(property.LOG_CHANNEL).send('Bot System Will Be Shutdown...')
+        await asyncio.sleep(3)
         await self.bot.close()
 
     @commands.group(name='cog')

@@ -1,6 +1,13 @@
 #! /usr/bin/env python3
-from discord.ext import commands
+#---standard library---
+import sqlite3
 import traceback
+
+#---third party library---
+from discord.ext import commands
+
+#---local library---
+from db_connect import DatabaseConnect
 import property
 
 
@@ -10,20 +17,27 @@ class MyBot(commands.Bot):
         # スーパークラスのコンストラクタに値を渡して実行。
         super().__init__(command_prefix)
 
+        # Cogをpropartyのリストからロード
         for cog in property.INITIAL_EXTENSIONS:
             try:
+                print('Success: Cog loaded (' + cog + ')')
                 self.load_extension(cog)
             except Exception:
                 traceback.print_exc()
 
     async def on_ready(self):
-        print('-----')
+        print('----------------')
         print(self.user.name)
         print(self.user.id)
-        print('-----')
-
+        print('----------------')
+        
+        with DatabaseConnect(property.DOWNLOAD_DATA) as db:
+            try:
+                db.execute('create table if not exists download' + property.DOWNLOAD_DATALIST)
+                db.execute('create table if not exists archive' + property.ARCHIVE_DATALIST)
+            except Exception as e:
+                raise e
 
 if __name__ == '__main__':
-    # command_prefixはコマンドの最初の文字として使うもの。 e.g. !ping
     bot = MyBot(command_prefix='!')
-    bot.run(property.KEY)
+    bot.run(property.DISCORD_KEY)
