@@ -1,4 +1,9 @@
 .vscode/
+ydlbot-workspace.code-workspace
+
 __pycache__/
 tmp/
-ydlbot-workspace.code-workspace
+
+*.db
+test*.*
+property.py

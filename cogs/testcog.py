@@ -5,6 +5,8 @@ import asyncio
 import time
 import os
 import shutil
+from functools import partial
+
 
 class TestCog(commands.Cog):
     def __init__(self, bot):
@@ -28,7 +30,8 @@ class TestCog(commands.Cog):
 
     @commands.command()
     async def move(self, ctx):
-        shutil.move('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/20201211_[Official] Rain ／ Nardis [Call].mkv', '/home/dorothy/')
+        shutil.move(
+            '/home/dorothy/work/python/discord_Youtube-dlBot/tmp/20201211_[Official] Rain ／ Nardis [Call].mkv', '/home/dorothy/')
         # print(file)
 
     @commands.command()
@@ -37,10 +40,12 @@ class TestCog(commands.Cog):
         loop.stop()
         loop.close()
         await ctx.send(loop.is_running())
-    
-    @commands.command(name='close')
-    async def close_client(self, ctx):
-        await self.bot.close()
+
+    @commands.command(name='await')
+    async def await_test(self, ctx):
+        await asyncio.sleep(1000)
+        await ctx.send('awaited')
+
 
 def setup(bot):
     return bot.add_cog(TestCog(bot))
