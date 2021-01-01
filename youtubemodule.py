@@ -58,9 +58,14 @@ class YoutubeModule():
         if type(info) == youtube_dl.utils.DownloadError:
             error = str(info.exc_info[1])
             if 'This live event will begin in' in error:
-                message = str(info.exc_info[1]) + ' Will be downloaded in ' + \
+                message = str(info.exc_info[1]) + '. Will be downloaded in ' + \
                     str(info.exc_info[1]).replace(
                         'This live event will begin in ', '')
+                return message
+            elif 'Premieres' in error:
+                message = str(info.exc_info[1]) + '. Will be downloaded in ' + \
+                    str(info.exc_info[1]).replace(
+                        'Premieres ', '')
                 return message
         else:
             raise info
@@ -146,9 +151,10 @@ class YoutubeModule():
         if type(info) == dict:
             return 0
         elif type(info) == youtube_dl.utils.DownloadError:
-            if 'This live event will begin in' in str(info.args):
+            if 'This live event will begin in' in str(info.args) or 'Premieres' in str(info.args):
 
-                # '\x1b[0;31mERROR:\x1b[0m This live event will begin in 77 minutes.'
+                # 'ERROR: This live event will begin in 77 minutes.'
+                # 'ERROR: Premieres in 7 hours'
                 args = str(info.args).split()
                 time = -1
                 for arg in args:
