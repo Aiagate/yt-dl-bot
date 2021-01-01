@@ -168,7 +168,9 @@ class YoutubeModule():
                         elif 'minutes' in arg:
                             time = time * 60
                         elif 'few' in arg:
-                            time = 30
+                            time = 5
+                        elif 'shortly' in arg:
+                            time = 5
                         else:
                             pass
                 if time >= 0:
@@ -204,8 +206,11 @@ class YoutubeModule():
 if __name__ == "__main__":
     ydm = YoutubeModule()
     url = input('URL: ')
-    title = ydm.get_videoid(url)
-    print(title)
-    print(type(title))
-    message = ydm.data_check(url)
+    try:
+        info = ydm.download_video(url)
+    except Exception as e:
+        info = e
+    print(info)
+    # print(type(title))
+    message = ydm.live_timer(info)
     print(message)
