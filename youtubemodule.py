@@ -175,7 +175,7 @@ class YoutubeModule():
         if type(info) == dict:
             return 0
         elif type(info) == youtube_dl.utils.DownloadError:
-            if 'This live event will begin in' in str(info.args) or 'Premieres' in str(info.args):
+            if 'This live event will begin in' in str(info.args) or 'Premiere' in str(info.args):
 
                 # 'ERROR: This live event will begin in 77 minutes.'
                 # 'ERROR: Premieres in 7 hours'

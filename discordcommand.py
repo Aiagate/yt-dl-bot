@@ -30,7 +30,7 @@ class MyBot(commands.Bot):
         print(self.user.name)
         print(self.user.id)
         print('----------------')
-        
+
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
                 db.execute('create table if not exists download' + property.DOWNLOAD_DATALIST)
