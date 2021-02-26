@@ -83,6 +83,9 @@ class YoutubeCog(commands.Cog):
     async def video_download(self, message,):
         if message.author.bot:
             return
+        
+        if '!' in message.content:
+            return
 
         try:
             url = requests.get(message.content).url.split('&')[0]

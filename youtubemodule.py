@@ -76,8 +76,8 @@ class YoutubeModule():
             try:
                 now = datetime.datetime.now()
                 date = now.strftime('%Y/%m/%d %H:%M:%S')
-                sql = 'insert into download values(?,?,?,?,?)'
-                result = db.execute(sql, self.get_videoid(url), url, date, None, None)
+                sql = 'insert into download values(?,?,?,?)'
+                result = db.execute(sql, self.get_videoid(url), url, date, None)
             except Exception as e:
                 raise e
 
@@ -89,6 +89,8 @@ class YoutubeModule():
                 if str(e.exc_info[1]) == 'Video unavailable':
                     info = e
                     break
+                info = e
+            except youtube_dl.utils.ExtractorError as e:
                 info = e
             except Exception as e:
                 raise e
@@ -133,10 +135,32 @@ class YoutubeModule():
 
             shutil.move(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
 
+        now = datetime.datetime.now()
+        id = self.get_videoid(url)
+        uploader    = '%(uploader)s' % info
+        channel_id  = '%(channel_id)s' % info
+        channel_url = '%(channel_url)s' % info
+        upload_date = '%(upload_date)s' % info
+        end_time    = now.strftime('%Y/%m/%d %H:%M')
+        title       = '%(title)s' % info
+        description = '%(description)s' % info
+        webpage_url = '%(webpage_url)s' % info
+        is_live     = '%(is_live)s' % info
+        width       = '%(width)s' % info
+        height      = '%(height)s' % info
+
+        
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
-                sql = 'delete from download where id = ?'
-                result = db.execute(sql, self.get_videoid(url))
+                sql = 'insert into archive values(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                result = db.execute(sql, id, uploader, channel_id, channel_url, upload_date, start_time, end_time, title, description, webpage_url, is_live, width, height)
+            except Exception as e:
+                raise e
+
+        with DatabaseConnect(property.DOWNLOAD_DATA) as db:
+            try:
+                sql = 'select from download where id = ?'
+                result = db.execute(sql, id)
             except Exception as e:
                 raise e
 
