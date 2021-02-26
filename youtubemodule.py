@@ -159,7 +159,7 @@ class YoutubeModule():
 
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
-                sql = 'select from download where id = ?'
+                sql = 'delete from download where id = ?'
                 result = db.execute(sql, id)
             except Exception as e:
                 raise e
