@@ -28,9 +28,11 @@ class YoutubeModule():
             try:
                 sql = 'select id from download where id = ?'
                 result = db.execute(sql, self.get_videoid(url))
+                '''
                 if result.fetchall() != []:
                     message = 'This Video is being downloaded.'
                     raise OverlappingError(message)
+                '''
             except Exception as e:
                 raise e
 
