@@ -240,7 +240,7 @@ class YoutubeModule():
             'keepvideo': False,
             'nooverwrites': True,
             'hls_use_mpegts': True,
-            'socket_timeout': 1800,
+            'socket_timeout': 300,
             # 'postprocessors': [{
             # 'key': 'FFmpegFixupM4a',
             # }],
