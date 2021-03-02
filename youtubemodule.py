@@ -24,6 +24,11 @@ class YoutubeModule():
         pass
 
     def data_check(self, url, ydl_ops={}):
+
+        #ダウンロード進行中の動画と同じ動画のダウンロードを制限
+        '''
+        ライブ配信かアーカイブかによって制限の解除を行うように改良予定
+        '''
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
                 sql = 'select id from download where id = ?'
@@ -33,7 +38,12 @@ class YoutubeModule():
                     raise OverlappingError(message)
             except Exception as e:
                 raise e
-
+        
+        #重複した動画のダウンロードを制限
+        '''
+        ライブ配信とそのアーカイブの場合は制限しないように改良予定
+        '''
+        '''
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
                 sql = 'select id from archive where id = ?'
@@ -43,64 +53,71 @@ class YoutubeModule():
                     raise OverlappingError(message)
             except Exception as e:
                 raise e
+        '''
 
+        #URLから動画情報を抽出
         try:
             info = self.get_info(url=url)
-        except Exception as e:
-            info = e
 
-        if type(info) == dict:
+            #動画情報の抽出が正常終了した場合、メッセージを返す
             title = '%(title)s' % info
             message = 'Video title : ' + title + '\n' \
-                'Download start...'
+                      'Download start...'
             return message
-
-        if type(info) == youtube_dl.utils.DownloadError:
-            error = str(info.exc_info[1])
+        except youtube_dl.utils.DownloadError as e:
+            error = str(e.exc_info[1])
             if 'This live event will begin in' in error:
-                message = str(info.exc_info[1]) + '. Will be downloaded in ' + \
-                    str(info.exc_info[1]).replace(
-                        'This live event will begin in ', '')
+                message = str(e.exc_info[1]) + '. Will be downloaded in ' + \
+                          str(e.exc_info[1]).replace('This live event will begin in ', '')
                 return message
             elif 'Premieres' in error:
-                message = str(info.exc_info[1]) + '. Will be downloaded in ' + \
-                    str(info.exc_info[1]).replace(
-                        'Premieres ', '')
+                message = str(e.exc_info[1]) + '. Will be downloaded in ' + \
+                          str(e.exc_info[1]).replace('Premieres ', '')
                 return message
-        else:
-            raise info
+            else:
+                raise e
+        except Exception as e:
+            raise e
 
     def download_video(self, url):
         is_download = False
+
+        #ダウンロード進行中のデータテーブルに動画情報を登録
+        '''
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
             try:
                 now = datetime.datetime.now()
                 date = now.strftime('%Y/%m/%d %H:%M:%S')
                 sql = 'insert into download values(?,?,?,?)'
-                result = db.execute(sql, self.get_videoid(url), url, date, None)
+                result = db.execute(sql, self.get_videoid(url), url, date, None) #主キーにIDを使用するのをやめる
             except Exception as e:
                 raise e
+        '''
 
+        #ライブ配信の場合、ライブ開始まで待機
         while is_download != True:
             try:
+                #ダウンロード処理
                 info = self.get_info(url)
                 is_download = True
-            except youtube_dl.utils.DownloadError as e:
-                if str(e.exc_info[1]) == 'Video unavailable':
-                    info = e
-                    break
-                info = e
-            except youtube_dl.utils.ExtractorError as e:
+                break
+            except youtube_dl.utils.DownloadError as e: #動画URLが有効でない場合にエラーを返す
+                raise e
+            except youtube_dl.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
                 info = e
             except Exception as e:
                 raise e
 
+            #待機時間を計算しジョブを待機させる
             sleeptime = self.live_timer(info=info)
             time.sleep(sleeptime)
 
+        # is_download==True の場合、ダウンロード処理を開始する
         if is_download == True:
             now = datetime.datetime.now()
 
+            #ダウンロード開始時刻をダウンロード進行中ののデータテーブルに追記
+            '''
             start_time = now.strftime('%Y/%m/%d %H:%M')
             with DatabaseConnect(property.DOWNLOAD_DATA) as db:
                 try:
@@ -108,7 +125,10 @@ class YoutubeModule():
                     result = db.execute(sql, start_time)
                 except Exception as e:
                     raise e
+            '''
 
+
+            #ファイルパス・ファイル名を作成
             date = now.strftime('%Y%m%d%H%M')
             ng_word = {
                 '\\': '＼',
@@ -125,16 +145,21 @@ class YoutubeModule():
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
 
+            #ダウンロード処理
             with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
-                try:
-                    info = ydl.extract_info(url, download=True)
-                except youtube_dl.utils.DownloadError as e:
-                    info = e
+                info = ydl.extract_info(url, download=True)
 
+            #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
             time.sleep(10)
-
+            
+            #ファイルをtmpフォルダから移動
             shutil.move(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
+            return info
 
+        '''
+        データベースへの登録は別関数に実装すべき？
+        '''
+        '''
         now = datetime.datetime.now()
         id = self.get_videoid(url)
         uploader    = '%(uploader)s' % info
@@ -163,8 +188,8 @@ class YoutubeModule():
                 result = db.execute(sql, id)
             except Exception as e:
                 raise e
+        '''
 
-        return info
 
     def get_info(self, url):
         with youtube_dl.YoutubeDL() as ydl:
@@ -215,7 +240,7 @@ class YoutubeModule():
             'keepvideo': False,
             'nooverwrites': True,
             'hls_use_mpegts': True,
-            'socket_timeout': 300,
+            'socket_timeout': 1800,
             # 'postprocessors': [{
             # 'key': 'FFmpegFixupM4a',
             # }],
@@ -232,10 +257,25 @@ if __name__ == "__main__":
     ydm = YoutubeModule()
     url = input('URL: ')
     try:
-        info = ydm.download_video(url)
+        info = ydm.data_check(url)
+        print(info)
     except Exception as e:
-        info = e
-    print(info)
+        print('==================================================================')
+        print(type(e))
+        print('==================================================================')
+        print(e.args)
+        print('==================================================================')
+        print(e.exc_info)
+        print('==================================================================')
+        print(type(e.exc_info[0]))
+        print(e.exc_info[0])
+        print('==================================================================')
+        print(type(e.exc_info[1]))
+        print(e.exc_info[1])
+        print('==================================================================')
+        print(type(e.exc_info[2]))
+        print(e.exc_info[2])
+        print('==================================================================')
     # print(type(title))
-    message = ydm.live_timer(info)
-    print(message)
+    # message = ydm.live_timer(info)
+    # print(message)

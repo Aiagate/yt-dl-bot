@@ -40,143 +40,81 @@ class YoutubeCog(commands.Cog):
     def ytd_title(self, url):
         info = self.ytd_info(url)
         return ('%(title)s' % info)
+    
+    @commands.group(name='youtube')
+    async def youtube_cog(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Error: missing option')
 
-    @commands.command(name='getinfo')
-    async def get_videoinfo(self, ctx):
-        args = ctx.message.content.split()
-
-        if len(args) == 1:
+    @youtube_cog.command(name='getinfo')
+    async def get_videoinfo(self, ctx, *args, **kwargs):
+        if len(args) == 0:
             await ctx.send('Error: need URLs!')
             return
 
-        for index, url in enumerate(args):
-            if index != 0:
-                self.info = self.ytd_info(url)
-                # print(info)
-                await ctx.send(info)
+        for url in args:
+            with youtube_dl.YoutubeDL() as ydl:
+                info = ydl.extract_info(url, download=False)
+            print(info)
+            await ctx.send(info)
 
     @get_videoinfo.error
     async def get_videoinfo_error(self, ctx, error):
         print(error)
-        await ctx.send('Error: ' + str(error))
+        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
 
-    @commands.command(name='liveinfo')
-    async def get_liveinfo(seld, ctx):
-        args = ctx.message.content.split()
-
-        if len(args) == 1:
+    @youtube_cog.command(name='liveinfo')
+    async def get_liveinfo(seld, ctx, *args, **kwargs):
+        if len(args) == 0:
             await ctx.send('Error: need URLs!')
             return
 
         for index, url in enumerate(args):
-            if index != 0:
-                self.info = self.ytd_info(url)
-                # print(info)
-                await ctx.send(info)
+            info = self.ytd_info(url)
+            # print(info)
+            await ctx.send(info)
 
     @get_liveinfo.error
     async def get_liveinfo_error(self, ctx, error):
         print(error)
-        await ctx.send('Error: ' + str(error))
+        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
 
-    @commands.Cog.listener(name='on_message')
-    async def video_download(self, message,):
-        if message.author.bot:
-            return
-        
-        if '!' in message.content:
-            return
+    @youtube_cog.command(name='download')
+    async def download_video(self, ctx, *args, **kwargs):
+        url = args[0]
 
+        ytm = YoutubeModule()
+
+        fn = partial(ytm.data_check, url=url, ydl_ops={})
         try:
-            url = requests.get(message.content).url.split('&')[0]
-            parsed_url = urllib.parse.urlparse(url)
+            text = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
+            await ctx.invoke(self.bot.get_command('send_error_log'), str(e.exc_info[1]))
             raise e
 
-        if parsed_url.netloc == 'www.youtube.com':
-            ytm = YoutubeModule()
-            fn = partial(ytm.data_check, url=url, ydl_ops={})
-            try:
-                text = await self.bot.loop.run_in_executor(None, fn)
-            except Exception as e:
-                await message.channel.send('Error: ' + str(e))
-                raise e
+        print(text)
+        await ctx.send(text)
 
-            print(text)
-            await message.channel.send(text)
+        fn = partial(ytm.download_video, url=url)
+        try:
+            info = await self.bot.loop.run_in_executor(None, fn)
+        except Exception as e:
+            await ctx.invoke(self.bot.get_command('send_error_log'), str(e.exc_info[1]))
+            raise e
+        
+        print('Download Success!')
+        try:
+            await ctx.invoke(self.bot.get_command('send_output_log'), info=info, url=url)
+        except Exception as e:
+            await ctx.invoke(self.bot.get_command('send_error_log'), str(e))
+            raise e
 
-            fn = partial(ytm.download_video, url=url)
-            try:
-                info = await self.bot.loop.run_in_executor(None, fn)
-            except Exception as e:
-                await message.channel.send('Error: ' + str(e))
-                raise e
-            
-            print('Success!')
-            await self.bot.get_channel(property.OUTPUT_CHANNEL).send(' Success: %(title)s \n' % info + url)
+        return
 
-            
-
-        '''
-        ng_word = {
-            '\\': '＼',
-            '/': '／',
-            ':': '：',
-            '<': '＜',
-            '>': '＞',
-            '|': '｜',
-            '?': '？',
-        }
-
-        title = self.ytd_title(self, message.content)
-        title = title.translate(str.maketrans(ng_word))
-        print(title)
-
-        outpath = os.getcwd() + '/tmp/' + '%(upload_date)s_' + title + '.%(ext)s'
-
-        fn = partial(ydm.download_video, video_url)
-        # fn = partial(ydm.download_video, video_url, ydm.ops(info, outpath)
-        info=await self.bot.loop.run_in_executor(None, fn)
-
-
-
-
-            file_path = os.getcwd() + '/tmp/' + '%(upload_date)s_' + title + '.%(ext)s'
-            ydl_ops = {
-                "outtmpl": file_path,
-                'format': 'bestvideo+bestaudio/best',
-                'merge_output_format': 'mkv',
-                'noplaylist': True,
-                'keepvideo': False,
-                'nooverwrites': True,
-                'hls_use_mpegts': True,
-                # 'postprocessors': [{
-                # 'key': 'FFmpegFixupM4a',
-                # }],
-            }
-            fn = partial(self.ytd_process, message.content, ydl_ops)
-            data = await self.bot.loop.run_in_executor(None, fn)
-
-            await asyncio.sleep(3)
-
-            # await message.channel.send(file_path % data)
-            # shutil.move(file_path % data, '/mnt/media/Youtube/' + '%(upload_date)s_' + title + '.%(ext)s' % data)
-            # shutil.move(file_path % data, '/mnt/media/Youtube/' + title + '.%(ext)s' % data)
-            shutil.move(file_path % data, '/mnt/media/Youtube/' + \
-                        title + '.%(ext)s' % data)
-            await self.bot.get_channel(property.OUTPUT_CHANNEL).send(' Success: ' + title + '.%(ext)s' % data)
-        else:
-            return
-        # '''
-
-
-'''
-    @video_download.error
-    async def video_download_error(self, ctx, error):
+    @download_video.error
+    async def download_video_error(self, ctx, error):
         print(error)
-        await ctx.send('Error: ' + str(error))
-'''
-
+        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
 
 def setup(bot):
     return bot.add_cog(YoutubeCog(bot))
