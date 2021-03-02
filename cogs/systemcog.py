@@ -113,7 +113,7 @@ class SystemCog(commands.Cog):
     async def send_error_log(self, ctx, *args, **kwargs):
         log_channel = self.bot.get_channel(property.LOG_CHANNEL)
         await ctx.reply('Error: Check ' + log_channel.mention)
-        await self.bot.get_channel(property.LOG_CHANNEL).send('**ERROR**\n' + '``' + '\n'.join(args) + '``')
+        await self.bot.get_channel(property.LOG_CHANNEL).send('``' + '\n'.join(args) + '``')
 
     @commands.command(enabled=False)
     async def send_output_log(self, ctx, info, url):
