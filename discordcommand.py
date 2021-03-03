@@ -20,15 +20,16 @@ class MyBot(commands.Bot):
         # Cogをpropartyのリストからロード
         for cog in property.INITIAL_EXTENSIONS:
             try:
-                print('Success: Cog loaded (' + cog + ')')
                 self.load_extension(cog)
-            except Exception:
-                traceback.print_exc()
+                print('Success: Cog loaded (' + cog + ')')
+            except Exception as e:
+                raise e
+                # traceback.print_exc()
 
     async def on_ready(self):
         print('----------------')
-        print(self.user.name)
-        print(self.user.id)
+        print(self.user.name    )
+        print(self.user.id      )
         print('----------------')
 
         with DatabaseConnect(property.DOWNLOAD_DATA) as db:
