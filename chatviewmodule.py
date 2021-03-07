@@ -111,6 +111,7 @@ class ChatViewModule():
 
         with DatabaseConnect(db_name=self.db_name) as db:
             try:
+                db.execute('drop table if exists ' + property.CHAT_DATALIST)
                 db.execute('create table if not exists chatdata ' + property.CHAT_DATALIST)
             except Exception as e:
                 raise e
