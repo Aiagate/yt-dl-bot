@@ -142,7 +142,9 @@ class YoutubeModule():
                 '?': '？',
             }
             title = date + '_%(id)s_%(title)s' % info
+            video_title = '%(title)s' % info
             title = title.translate(str.maketrans(ng_word))
+            video_title = video_title.translate(str.maketrans(ng_word))
             outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
@@ -162,7 +164,7 @@ class YoutubeModule():
             
             #ファイルをtmpフォルダから移動
             shutil.copy2(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
-            return [info, outpath % info]
+            return [info, outpath % info, video_title]
 
         '''
         データベースへの登録は別関数に実装すべき？

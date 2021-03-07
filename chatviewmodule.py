@@ -3,6 +3,7 @@
 from pytchat import LiveChat
 import time
 import os
+import ffmpeg
 import numpy
 import sqlite3
 import shutil
@@ -64,7 +65,7 @@ class ChatViewModule():
 
             seektime = seektime + 30000
 
-        print(score_data)
+        # print(score_data)
         return score_data
 
     def plot_peak(self, score_data):
@@ -80,22 +81,25 @@ class ChatViewModule():
         score_size = len(score_data)
 
         cut_time = []
-
-        for i, score in enumerate(score_data):
-            if score >= int(max_score * 0.8):
-                index = 0
-                seek = 0
-                while index > 3:
-                    if score_data >= int(max_score * 0.8):
-                        index = 0
-                        seek = seek + 1
-                        continue
+        i = 0
+        while i < score_size:
+            if score_data[i] > max_score * 0.6:
+                start_time = max(i - 4, 0)
+                l = 4
+                while l >= 0 and i < score_size:
+                    if score_data[i] > max_score * 0.6:
+                        l = 4
                     else:
-                        index = index + 1
+                        l = l - 1
+                    i = i + 1
 
-                start_time = max(0,i-4) * 30
-                end_time = (i + 4 + seek) * 30
-                cut_time.append([start_time ,end_time])
+                end_time = i
+
+                start_time = start_time * 30
+                end_time = end_time * 30
+                cut_time.append([start_time, end_time])
+
+            i = i + 1
 
         return cut_time
 
@@ -148,9 +152,10 @@ class ChatViewModule():
                 raise e
         return 'Success!'
 
-    def cut_movie(self, file_path):
+    def cut_movie(self, file_path, title):
         cut_time = self.get_peaktime(self.count_score())
         print(cut_time)
+
 
         for time in cut_time:
             start_time = time[0]
@@ -160,26 +165,27 @@ class ChatViewModule():
             print(end_time)
             print('+++++++++++++++++++++++++')
 
-            filename = self.video_id + '_' + str(start_time) + '-' + str(end_time) + '.mp4'
+            filename = self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mp4'
             save_path = os.getcwd() + '/tmp/' + filename
 
-            video = VideoFileClip(file_path)
+            video_info = ffmpeg.probe(file_path)
+            duration = float(video_info['format']['duration'])
 
-            print(video.duration)
+            start_time = min(start_time,duration)
+            stride = min(end_time,duration) - start_time
 
-            start_time = min(start_time,video.duration - 1)
-            end_time = min(end_time,video.duration - 1)
-
-            print(start_time)
-            print(end_time)
-            print('==========================')
-
-            if (end_time - start_time) < 5:
-                continue
-
-            video.subclip(start_time, end_time)
-            video.write_videofile(save_path,fps=60)
+            stream = ffmpeg.input(file_path, ss=start_time, t=stride)
+            stream = ffmpeg.output(stream, save_path, c="copy")
+            stream = ffmpeg.overwrite_output(stream)
+            try:
+                ffmpeg.run(stream, capture_stdout=True, capture_stderr=True)
+            except ffmpeg.Error as e:
+                print('stdout:', e.stdout.decode('utf8'))
+                print('stderr:', e.stderr.decode('utf8'))
+                raise e
+            
             shutil.move(save_path, '/mnt/media/Youtube/' + filename)
+        os.remove(file_path)
 
 
 if __name__ == '__main__':
@@ -187,7 +193,8 @@ if __name__ == '__main__':
     chatviewer = ChatViewModule(id) #'CGTaqNWE7HU'
     # chatviewer.get_chatdata()
     data = chatviewer.count_score()
-    # chatviewer.plot_peak(data)
+    chatviewer.plot_peak(data)
+    chatviewer.cut_movie('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/202103072134_on1Tv63h8y8_【#にじARK​​】異世界農家　舞元【にじさんじ／舞元啓介】.mp4')
     cut_time = chatviewer.get_peaktime(data)
     print(cut_time)
     # chatviewer.plot_peak(data)

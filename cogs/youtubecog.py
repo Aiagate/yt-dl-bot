@@ -104,6 +104,7 @@ class YoutubeCog(commands.Cog):
             raise e
         info = result[0]
         outpath = result[1]
+        title = result[2]
         print('Download Success!')
         try:
             await ctx.invoke(self.bot.get_command('send_output_log'), info=info, url=url)
@@ -111,11 +112,13 @@ class YoutubeCog(commands.Cog):
             await ctx.invoke(self.bot.get_command('send_error_log'), str(e))
             raise e
 
+        '''
         if '%(is_live)s' % info != 'True':
             return
+        #'''
 
         cvm = ChatViewModule(ytm.get_videoid(url=url))
-        fn = partial(cvm.cut_movie, file_path=outpath)
+        fn = partial(cvm.cut_movie, file_path=outpath, title=title)
         try:
             info = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
