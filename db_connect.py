@@ -36,13 +36,42 @@ class DatabaseConnect(object):
 
 
 if __name__ == "__main__":
-    with DatabaseConnect('databases/test.db') as db:
-        # db.create_table('Movies', 'id str, title str')
+    with DatabaseConnect('databases/chatdata_OqkDihODc2A.db') as db:
+        # db.create_table('test', 'id str, title str')
         try:
             id = 'aaa'
-            result = db.execute('insert into test values(?,?)',id, 'aaa')
-            print(result.fetchall())
-            if result.fetchall() == []:
-                print(None)
+            result = db.execute('select min(timestamp) from chatdata')
+            # result = db.execute('select timestamp from chatdata')
+            # result = db.execute('insert into test values(?,?)',id, 'aaa,bbb) select from')
+            # while True:
+            #     try:
+            #         id = result.fetchone()
+            #     except Exception as e:
+            #         break
+            #     # print(id[0])
+            # # print(''.join(  str( result.fetchall() ) ))
+            starttime = result.fetchone()[0]
+            print(starttime)
+            result = db.execute('select message from chatdata where timestamp > ? and timestamp < ?', starttime, starttime + 600000000)
+            # print(len(result.fetchall()))
+            score_data = []
+            for i in result.fetchall():
+                score = 0
+                # print(i['message'])
+                score_word = [
+                    '!', '！',
+                    '?', '？',
+                    'w', 'W','ｗ', 'Ｗ',
+                    '草', 
+                    ':'
+                ]
+                if i[0] in score_word:
+                    print('hit!')
+                    score = score + 1
+                score_data.append(score)
+            # print(result.fetchall())
+            # if result.fetchall() == []:
+            #     print(None)
+            print(score_data)
         except Exception as e:
             print(e)

@@ -9,10 +9,12 @@ import shutil
 import time
 import sys
 import urllib
+from multiprocessing import Pool
 
 import youtube_dl
 
 from db_connect import DatabaseConnect
+from chatviewmodule import ChatViewModule
 from utils import (
     OverlappingError
 )
@@ -102,7 +104,7 @@ class YoutubeModule():
                 is_download = True
                 break
             except youtube_dl.utils.DownloadError as e: #動画URLが有効でない場合にエラーを返す
-                raise e
+                info = e
             except youtube_dl.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
                 info = e
             except Exception as e:
@@ -146,15 +148,21 @@ class YoutubeModule():
             start_time = now.strftime('%Y/%m/%d %H:%M')
 
             #ダウンロード処理
+            cvm = ChatViewModule(self.get_videoid(url))
+            pool = Pool(1)
+            result = pool.apply_async(cvm.get_chatdata)
+
             with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
                 info = ydl.extract_info(url, download=True)
+            
+            # print(result.get())
 
             #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
             time.sleep(10)
             
             #ファイルをtmpフォルダから移動
-            shutil.move(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
-            return info
+            shutil.copy2(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
+            return [info, outpath % info]
 
         '''
         データベースへの登録は別関数に実装すべき？
@@ -257,8 +265,8 @@ if __name__ == "__main__":
     ydm = YoutubeModule()
     url = input('URL: ')
     try:
-        info = ydm.data_check(url)
-        print(info)
+        info = ydm.get_info(url)
+        print('%(is_live)s' % info)
     except Exception as e:
         print('==================================================================')
         print(type(e))
