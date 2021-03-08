@@ -166,7 +166,7 @@ class ChatViewModule():
             print(end_time)
             print('+++++++++++++++++++++++++')
 
-            filename = self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mp4'
+            filename = self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
             save_path = os.getcwd() + '/tmp/' + filename
 
             video_info = ffmpeg.probe(file_path)
@@ -183,9 +183,23 @@ class ChatViewModule():
             except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
+                database_name = 'chatdata_' + video_id + '.db''
+                database_path = 'databases/'
+                out_path = "/mnt/media/Youtube/databases/"
+                if not os.path.exists(out_path):
+                    os.mkdir(out_path)
+                shutil.move(database_path + database_name, out_path + database_name)
+                os.remove(file_path)
                 raise e
             
-            shutil.move(save_path, '/mnt/media/Youtube/' + filename)
+            shutil.move('chatdata_' self.video_id + '.db', '/mnt/media/Youtube/chatdata/' + filename)
+
+        database_name = 'chatdata_' + video_id + '.db''
+        database_path = 'databases/'
+        out_path = "/mnt/media/Youtube/databases/"
+        if not os.path.exists(out_path):
+            os.mkdir(out_path)
+        shutil.move(database_path + database_name, out_path + database_name)
         os.remove(file_path)
 
 

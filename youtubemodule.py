@@ -160,10 +160,13 @@ class YoutubeModule():
             # print(result.get())
 
             #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
-            time.sleep(10)
+            # time.sleep(10)
             
             #ファイルをtmpフォルダから移動
-            shutil.copy2(outpath % info, '/mnt/media/Youtube/' + title + '.%(ext)s' % info)
+            save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
+            if not os.path.exists(save_path):
+                os.mkdir(save_path)
+            shutil.copy2(outpath % info,  save_path + title + '.%(ext)s' % info)
             return [info, outpath % info, video_title]
 
         '''

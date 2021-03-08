@@ -62,7 +62,7 @@ class YoutubeCog(commands.Cog):
     @get_videoinfo.error
     async def get_videoinfo_error(self, ctx, error):
         print(error)
-        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
+        await ctx.invoke(self.bot.get_command('send_error_log'), error)
 
     @youtube_cog.command(name='liveinfo')
     async def get_liveinfo(seld, ctx, *args, **kwargs):
@@ -78,7 +78,7 @@ class YoutubeCog(commands.Cog):
     @get_liveinfo.error
     async def get_liveinfo_error(self, ctx, error):
         print(error)
-        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
+        await ctx.invoke(self.bot.get_command('send_error_log'), error)
 
     @youtube_cog.command(name='download')
     async def download_video(self, ctx, *args, **kwargs):
@@ -90,7 +90,7 @@ class YoutubeCog(commands.Cog):
         try:
             text = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
-            await ctx.invoke(self.bot.get_command('send_error_log'), str(e.exc_info[1]))
+            await ctx.invoke(self.bot.get_command('send_error_log'), error)
             raise e
 
         print(text)
@@ -100,7 +100,7 @@ class YoutubeCog(commands.Cog):
         try:
             result = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
-            await ctx.invoke(self.bot.get_command('send_error_log'), str(e.exc_info[1]))
+            await ctx.invoke(self.bot.get_command('send_error_log'), error)
             raise e
         info = result[0]
         outpath = result[1]
@@ -109,11 +109,17 @@ class YoutubeCog(commands.Cog):
         try:
             await ctx.invoke(self.bot.get_command('send_output_log'), info=info, url=url)
         except Exception as e:
-            await ctx.invoke(self.bot.get_command('send_error_log'), str(e))
+            await ctx.invoke(self.bot.get_command('send_error_log'), error)
             raise e
 
         '''
         if '%(is_live)s' % info != 'True':
+            fn = partial(os.remove, outpath)
+            try:
+                info = await self.bot.loop.run_in_executor(None, fn)
+            except Exception as e:
+                await ctx.invoke(self.bot.get_command('send_error_log'), e)
+                raise e
             return
         #'''
 
@@ -122,7 +128,7 @@ class YoutubeCog(commands.Cog):
         try:
             info = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
-            await ctx.invoke(self.bot.get_command('send_error_log'), str(e))
+            await ctx.invoke(self.bot.get_command('send_error_log'), e)
             raise e
 
         return
@@ -130,7 +136,7 @@ class YoutubeCog(commands.Cog):
     @download_video.error
     async def download_video_error(self, ctx, error):
         print(error)
-        await ctx.invoke(self.bot.get_command('send_error_log'), str(error))
+        await ctx.invoke(self.bot.get_command('send_error_log'), error)
 
 def setup(bot):
     return bot.add_cog(YoutubeCog(bot))

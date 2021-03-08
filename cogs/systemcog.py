@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 import asyncio
 import discord
+import logging
 from discord.ext import commands
+import traceback
 import property
 
 
@@ -110,10 +112,10 @@ class SystemCog(commands.Cog):
         await self.bot.get_channel(property.LOG_CHANNEL).send('``' + '\n'.join(args) + '``')
     
     @commands.command(enabled=False)
-    async def send_error_log(self, ctx, *args, **kwargs):
+    async def send_error_log(self, ctx, error, *args, **kwargs):
         log_channel = self.bot.get_channel(property.LOG_CHANNEL)
         await ctx.reply('Error: Check ' + log_channel.mention)
-        await self.bot.get_channel(property.LOG_CHANNEL).send('``' + '\n'.join(args) + '``')
+        await self.bot.get_channel(property.LOG_CHANNEL).send('```' + traceback.format_exc() + '```')
 
     @commands.command(enabled=False)
     async def send_output_log(self, ctx, info, url):
