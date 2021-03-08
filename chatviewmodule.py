@@ -153,7 +153,9 @@ class ChatViewModule():
                 raise e
         return 'Success!'
 
-    def cut_movie(self, file_path, title, date):
+    def cut_movie(self, file_path, title, date, pool):
+        print(self.video_id)
+        pool.wait()
         cut_time = self.get_peaktime(self.count_score())
         print(cut_time)
 
@@ -166,7 +168,7 @@ class ChatViewModule():
             print(end_time)
             print('+++++++++++++++++++++++++')
 
-            filename = date + '_' +self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
+            filename = date + '_' + self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
             save_path = os.getcwd() + '/tmp/' + filename
 
             video_info = ffmpeg.probe(file_path)
@@ -183,7 +185,7 @@ class ChatViewModule():
             except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
-                database_name = 'chatdata_' + video_id + '.db'
+                database_name = 'chatdata_' + self.video_id + '.db'
                 database_path = 'databases/'
                 out_path = "/mnt/media/Youtube/databases/"
                 if not os.path.exists(out_path):
@@ -191,10 +193,8 @@ class ChatViewModule():
                 shutil.move(database_path + database_name, out_path + database_name)
                 os.remove(file_path)
                 raise e
-            
-            shutil.move('chatdata_' + self.video_id + '.db', '/mnt/media/Youtube/chatdata/' + filename)
 
-        database_name = 'chatdata_' + video_id + '.db'
+        database_name = 'chatdata_' + self.video_id + '.db'
         database_path = 'databases/'
         out_path = "/mnt/media/Youtube/databases/"
         if not os.path.exists(out_path):
@@ -202,17 +202,23 @@ class ChatViewModule():
         shutil.move(database_path + database_name, out_path + database_name)
         os.remove(file_path)
 
+    def test (self):
+        print(self.video_id)
+
 
 if __name__ == '__main__':
     id = input('ID:')
     chatviewer = ChatViewModule(id) #'CGTaqNWE7HU'
-    chatviewer.get_chatdata()
+    print(chatviewer.video_id)
+    chatviewer.test()
+    chatviewer.cut_movie(None,None,None,None)
     # chatviewer.get_chatdata()
-    data = chatviewer.count_score()
-    chatviewer.plot_peak(data)
+    # chatviewer.get_chatdata()
+    # data = chatviewer.count_score()
+    # chatviewer.plot_peak(data)
     # chatviewer.cut_movie('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/202103072134_on1Tv63h8y8_【#にじARK​​】異世界農家　舞元【にじさんじ／舞元啓介】.mp4')
-    cut_time = chatviewer.get_peaktime(data)
-    print(cut_time)
+    # cut_time = chatviewer.get_peaktime(data)
+    # print(cut_time)
     # chatviewer.plot_peak(data)
 
 

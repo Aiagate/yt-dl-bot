@@ -125,9 +125,8 @@ class YoutubeCog(commands.Cog):
             return
         #'''
 
-        await pool.wait()
         cvm = ChatViewModule(ytm.get_videoid(url=url))
-        fn = partial(cvm.cut_movie, file_path=outpath, title=title, date=date)
+        fn = partial(cvm.cut_movie, file_path=outpath, title=title, date=date, pool=pool)
         try:
             info = await self.bot.loop.run_in_executor(None, fn)
         except Exception as e:
