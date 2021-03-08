@@ -183,7 +183,7 @@ class ChatViewModule():
             except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
-                database_name = 'chatdata_' + video_id + '.db''
+                database_name = 'chatdata_' + video_id + '.db'
                 database_path = 'databases/'
                 out_path = "/mnt/media/Youtube/databases/"
                 if not os.path.exists(out_path):
