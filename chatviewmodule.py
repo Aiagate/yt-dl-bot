@@ -106,8 +106,6 @@ class ChatViewModule():
 
 
     def get_chatdata(self):
-        return
-        
         chat = LiveChat(video_id=self.video_id)
 
         with DatabaseConnect(db_name=self.db_name) as db:
