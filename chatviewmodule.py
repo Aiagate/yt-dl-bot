@@ -106,6 +106,7 @@ class ChatViewModule():
 
 
     def get_chatdata(self):
+        return
         
         chat = LiveChat(video_id=self.video_id)
 
@@ -182,6 +183,7 @@ class ChatViewModule():
             stream = ffmpeg.overwrite_output(stream)
             try:
                 ffmpeg.run(stream, capture_stdout=True, capture_stderr=True)
+                shutil.move(save_path, '/mnt/media/Youtube/' + date[:10] + '/' + filename)
             except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
