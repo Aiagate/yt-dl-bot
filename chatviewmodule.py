@@ -3,6 +3,7 @@
 from pytchat import LiveChat
 import time
 import os
+import importlib
 import ffmpeg
 import numpy
 import sqlite3
@@ -10,7 +11,8 @@ import shutil
 import matplotlib.pyplot as plt
 from moviepy.editor import *
 
-from db_connect import DatabaseConnect
+import db_connect
+# from db_connect import DatabaseConnect
 from utils import (
     OverlappingError
 )
@@ -18,13 +20,15 @@ import property
 
 class ChatViewModule():
     def __init__(self, video_id):
+        importlib.reload(importlib)
+        importlib.reload(db_connect)
         self.video_id = video_id
         self.db_name = 'databases/chatdata_' + video_id + '.db'
         self.starttime = 0
 
 
     def count_score(self):
-        with DatabaseConnect(db_name=self.db_name) as db:
+        with db_connect.DatabaseConnect(db_name=self.db_name) as db:
             try:
                 result = db.execute('select min(timestamp) from chatdata')
                 self.starttime = result.fetchone()[0]
@@ -38,7 +42,7 @@ class ChatViewModule():
 
         while seektime <= endtime:
             score = 0
-            with DatabaseConnect(db_name=self.db_name) as db:
+            with db_connect.DatabaseConnect(db_name=self.db_name) as db:
                 try:
                     result = db.execute('select type,message from chatdata where timestamp > ? and timestamp < ?', seektime, seektime + 60000)
                     result_data = result.fetchall()
@@ -108,7 +112,7 @@ class ChatViewModule():
     def get_chatdata(self):
         chat = LiveChat(video_id=self.video_id)
 
-        with DatabaseConnect(db_name=self.db_name) as db:
+        with db_connect.DatabaseConnect(db_name=self.db_name) as db:
             try:
                 db.execute('drop table if exists chatdata')
                 db.execute('create table if not exists chatdata ' + property.CHAT_DATALIST)
@@ -122,7 +126,7 @@ class ChatViewModule():
                 for c in items:
                     print(f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
                     # print(type(c.author.name))
-                    with DatabaseConnect(db_name=self.db_name) as db:
+                    with db_connect.DatabaseConnect(db_name=self.db_name) as db:
                         try:
                             sql = 'insert into chatdata values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
                             result = db.execute(sql,

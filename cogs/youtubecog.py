@@ -9,20 +9,29 @@ import signal
 import sqlite3
 import time
 import urllib
+import importlib
 
 import discord
 from discord.ext import commands
 import youtube_dl
 
+import db_connect
+import youtubemodule
+import chatviewmodule
+'''
 from db_connect import DatabaseConnect
 from youtubemodule import YoutubeModule
 from chatviewmodule import ChatViewModule
-
+'''
 import property
 
 
 class YoutubeCog(commands.Cog):
     def __init__(self, bot):
+        importlib.reload(importlib)
+        importlib.reload(db_connect)
+        importlib.reload(youtubemodule)
+        importlib.reload(chatviewmodule)
         self.bot = bot
 
     @staticmethod
@@ -84,7 +93,7 @@ class YoutubeCog(commands.Cog):
     async def download_video(self, ctx, *args, **kwargs):
         url = args[0]
 
-        ytm = YoutubeModule()
+        ytm = youtubemodule.YoutubeModule()
 
         fn = partial(ytm.data_check, url=url, ydl_ops={})
         try:
@@ -125,7 +134,7 @@ class YoutubeCog(commands.Cog):
             return
         #'''
 
-        cvm = ChatViewModule(ytm.get_videoid(url=url))
+        cvm = chatviewmodule.ChatViewModule(ytm.get_videoid(url=url))
         fn = partial(cvm.cut_movie, file_path=outpath, title=title, date=date, pool=pool)
         try:
             info = await self.bot.loop.run_in_executor(None, fn)
