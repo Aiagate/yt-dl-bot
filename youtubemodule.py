@@ -146,7 +146,8 @@ class YoutubeModule():
             video_title = '%(title)s' % info
             title = title.translate(str.maketrans(ng_word))
             video_title = video_title.translate(str.maketrans(ng_word))
-            outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
+            outpath = '/mnt/cache/' + title + '.%(ext)s'
+            # outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
 
