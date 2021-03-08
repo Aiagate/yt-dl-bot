@@ -192,7 +192,7 @@ class ChatViewModule():
                 os.remove(file_path)
                 raise e
             
-            shutil.move('chatdata_' self.video_id + '.db', '/mnt/media/Youtube/chatdata/' + filename)
+            shutil.move('chatdata_' + self.video_id + '.db', '/mnt/media/Youtube/chatdata/' + filename)
 
         database_name = 'chatdata_' + video_id + '.db''
         database_path = 'databases/'
