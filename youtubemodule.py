@@ -133,7 +133,6 @@ class YoutubeModule():
             #ファイルパス・ファイル名を作成
             date = now.strftime('%Y-%m-%d_%H%M')
             ng_word = {
-                '#': '＃',
                 '\\': '＼',
                 '/': '／',
                 ':': '：',
