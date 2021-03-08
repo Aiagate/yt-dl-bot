@@ -156,7 +156,7 @@ class YoutubeModule():
 
             with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
                 info = ydl.extract_info(url, download=True)
-            
+
             # print(result.get())
 
             #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
@@ -167,7 +167,7 @@ class YoutubeModule():
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
             shutil.copy2(outpath % info,  save_path + title + '.%(ext)s' % info)
-            return [info, outpath % info, video_title, date]
+            return [info, outpath % info, video_title, date, result]
 
         '''
         データベースへの登録は別関数に実装すべき？

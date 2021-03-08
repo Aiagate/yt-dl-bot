@@ -111,7 +111,7 @@ class ChatViewModule():
 
         with DatabaseConnect(db_name=self.db_name) as db:
             try:
-                db.execute('drop table if exists ' + property.CHAT_DATALIST)
+                db.execute('drop table if exists chatdata')
                 db.execute('create table if not exists chatdata ' + property.CHAT_DATALIST)
             except Exception as e:
                 raise e
@@ -206,10 +206,11 @@ class ChatViewModule():
 if __name__ == '__main__':
     id = input('ID:')
     chatviewer = ChatViewModule(id) #'CGTaqNWE7HU'
+    chatviewer.get_chatdata()
     # chatviewer.get_chatdata()
     data = chatviewer.count_score()
     chatviewer.plot_peak(data)
-    chatviewer.cut_movie('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/202103072134_on1Tv63h8y8_【#にじARK​​】異世界農家　舞元【にじさんじ／舞元啓介】.mp4')
+    # chatviewer.cut_movie('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/202103072134_on1Tv63h8y8_【#にじARK​​】異世界農家　舞元【にじさんじ／舞元啓介】.mp4')
     cut_time = chatviewer.get_peaktime(data)
     print(cut_time)
     # chatviewer.plot_peak(data)
