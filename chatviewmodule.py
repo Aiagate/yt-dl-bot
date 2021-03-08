@@ -153,7 +153,7 @@ class ChatViewModule():
                 raise e
         return 'Success!'
 
-    def cut_movie(self, file_path, title):
+    def cut_movie(self, file_path, title, date):
         cut_time = self.get_peaktime(self.count_score())
         print(cut_time)
 
@@ -166,7 +166,7 @@ class ChatViewModule():
             print(end_time)
             print('+++++++++++++++++++++++++')
 
-            filename = self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
+            filename = date + '_' +self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
             save_path = os.getcwd() + '/tmp/' + filename
 
             video_info = ffmpeg.probe(file_path)

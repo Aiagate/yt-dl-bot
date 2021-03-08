@@ -131,7 +131,7 @@ class YoutubeModule():
 
 
             #ファイルパス・ファイル名を作成
-            date = now.strftime('%Y%m%d%H%M')
+            date = now.strftime('%Y-%m-%d_%H%M')
             ng_word = {
                 '\\': '＼',
                 '/': '／',
@@ -167,7 +167,7 @@ class YoutubeModule():
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
             shutil.copy2(outpath % info,  save_path + title + '.%(ext)s' % info)
-            return [info, outpath % info, video_title]
+            return [info, outpath % info, video_title, date]
 
         '''
         データベースへの登録は別関数に実装すべき？
