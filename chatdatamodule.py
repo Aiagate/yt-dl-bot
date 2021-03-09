@@ -30,7 +30,7 @@ class ChatDataModule():
         self.video_id = video_id
         self.date = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
         # self.db_name = '/mnt/media/Youtube/databases/chatdata_I4I_HJenWkQ.db'
-        self.db_name =  os.getcwd() '/databases/chatdata_' + self.date + '_' + video_id + '.db'
+        self.db_name =  os.getcwd() + '/databases/chatdata_' + self.date + '_' + video_id + '.db'
         self.image_name = 'scoregraph_' + self.date + '_' + video_id + '.png'
         self.image_path = os.getcwd() + '/tmp/' + self.image_name
         self.starttime = 0
