@@ -14,7 +14,7 @@ from multiprocessing import Pool
 import youtube_dl
 
 from db_connect import DatabaseConnect
-from chatviewmodule import ChatViewModule
+# from chatviewmodule import ChatViewModule
 from utils import (
     OverlappingError
 )
@@ -131,7 +131,7 @@ class YoutubeModule():
 
 
             #ファイルパス・ファイル名を作成
-            date = now.strftime('%Y-%m-%d_%H%M')
+            date = now.strftime('%Y-%m-%d-%H%M')
             ng_word = {
                 '\\': '＼',
                 '/': '／',
@@ -150,10 +150,12 @@ class YoutubeModule():
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
 
-            #ダウンロード処理
-            cvm = ChatViewModule(self.get_videoid(url))
+            #コメントダウンロード処理
+            '''
+            cvm = ChatViewModule(self.get_videoid(url), date)
             pool = Pool(1)
             result = pool.apply_async(cvm.get_chatdata)
+            '''
 
             with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -167,8 +169,8 @@ class YoutubeModule():
             save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
-            shutil.copy2(outpath % info,  save_path + title + '.%(ext)s' % info)
-            return [info, outpath % info, video_title, date, result]
+            shutil.move(outpath % info,  save_path + title + '.%(ext)s' % info)
+            return info
 
         '''
         データベースへの登録は別関数に実装すべき？
@@ -203,7 +205,6 @@ class YoutubeModule():
             except Exception as e:
                 raise e
         '''
-
 
     def get_info(self, url):
         with youtube_dl.YoutubeDL() as ydl:

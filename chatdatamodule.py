@@ -2,6 +2,7 @@
 
 from pytchat import LiveChat
 import time
+import datetime
 import os
 import importlib
 import ffmpeg
@@ -9,25 +10,38 @@ import numpy
 import sqlite3
 import shutil
 import matplotlib.pyplot as plt
+from multiprocessing import Pool
 from moviepy.editor import *
+from collections import deque
 
 import db_connect
+import youtubeapi
 # from db_connect import DatabaseConnect
 from utils import (
     OverlappingError
 )
 import property
 
-class ChatViewModule():
-    def __init__(self, video_id):
+class ChatDataModule():
+    def __init__(self, video_id, url, livedetail):
         importlib.reload(importlib)
         importlib.reload(db_connect)
+        self.url = url
         self.video_id = video_id
-        self.db_name = 'databases/chatdata_' + video_id + '.db'
+        self.date = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
+        # self.db_name = '/mnt/media/Youtube/databases/chatdata_I4I_HJenWkQ.db'
+        self.db_name =  os.getcwd() '/databases/chatdata_' + self.date + '_' + video_id + '.db'
+        self.image_name = 'scoregraph_' + self.date + '_' + video_id + '.png'
+        self.image_path = os.getcwd() + '/tmp/' + self.image_name
         self.starttime = 0
+        self.endtime = 0
+
+        self.livedetail = livedetail
+        # self.livedetail = ytapi.get_livedetail(self.video_id)
 
 
     def count_score(self):
+        '''
         with db_connect.DatabaseConnect(db_name=self.db_name) as db:
             try:
                 result = db.execute('select min(timestamp) from chatdata')
@@ -36,11 +50,19 @@ class ChatViewModule():
                 endtime = result.fetchone()[0]
             except Exception as e:
                 raise e
+        '''
+        ytapi = youtubeapi.YoutubeApi()
+
+        self.starttime = ytapi.get_starttime_UNIX(self.livedetail)
+        self.endtime = ytapi.get_endtime_UNIX(self.livedetail)
+        print(self.starttime)
+        print(self.endtime)
 
         seektime = self.starttime
         score_data = []
+        average_count = deque([1000] * 8)
 
-        while seektime <= endtime:
+        while seektime + 60000 <= self.endtime:
             score = 0
             with db_connect.DatabaseConnect(db_name=self.db_name) as db:
                 try:
@@ -48,64 +70,79 @@ class ChatViewModule():
                     result_data = result.fetchall()
                 except Exception as e:
                     raise e
-
+            score = 0
             for c in result_data:
-                if c[0] == 'superSticker' or c[0] == 'superChat':
+                if c[0] == 'superSticker' or c[0] == 'superChat' or c[0] == 'newSponsor':
                     score = score + 20
                 
                 score_word = [
+                    # ':',
                     '!', '！',
                     '?', '？',
                     'w', 'W','ｗ', 'Ｗ',
-                    '草', 
-                    ':'
+                    '草' 
                 ]
                 if c[1] in score_word:
                     score = score + 10
                 
-                score = score + 5
+                score = score + 1
 
+            '''
+            t = str(self.starttime) + '\t' +\
+            str(seektime) + '\t' +\
+            str(self.endtime) + '\t' +\
+            str(score) + '\t' +\
+            str((sum(average_count)+1) / len(average_count)) + '\t' +\
+            str(score / ((sum(average_count)+1) / len(average_count)))
+            '''
+
+            # print(t)
+
+            comment_count = len(result_data)
+
+            if comment_count > 0:
+                score = score / (sum(average_count) / len(average_count))
+
+                average_count.append(comment_count)
+                average_count.popleft()
+
+            print(score)
             score_data.append(score)
-
             seektime = seektime + 30000
 
-        # print(score_data)
+        print(score_data)
         return score_data
 
     def plot_peak(self, score_data):
         max_score = max(score_data)
         score_size = len(score_data)
 
-        plt.plot(range(score_size), score_data)
+        plt.figure()
+        plt.plot([i * 30 for i in list(range(score_size))], score_data)
         plt.grid(axis='y', linestyle='dotted')
-        plt.savefig(self.video_id + '.png')
+        plt.savefig(self.image_path)
     
     def get_peaktime(self, score_data):
         max_score = max(score_data)
         score_size = len(score_data)
 
-        cut_time = []
+        peaktime = []
         i = 0
+        limit = 0.4
         while i < score_size:
-            if score_data[i] > max_score * 0.6:
-                start_time = max(i - 4, 0)
-                l = 4
+            if score_data[i] > max_score * limit:
+                peaktime_sec = max(i - 1 , 0)
+                l = 2
                 while l >= 0 and i < score_size:
-                    if score_data[i] > max_score * 0.6:
-                        l = 4
+                    if score_data[i] > max_score * limit:
+                        l = 2
                     else:
                         l = l - 1
                     i = i + 1
-
-                end_time = i
-
-                start_time = start_time * 30
-                end_time = end_time * 30
-                cut_time.append([start_time, end_time])
-
+                peaktime_sec = peaktime_sec * 30
+                peaktime.append(peaktime_sec)
             i = i + 1
-
-        return cut_time
+        return peaktime
 
 
 
@@ -147,7 +184,7 @@ class ChatViewModule():
                             )
                         except Exception as e:
                             raise e
-                time.sleep(3)
+                # time.sleep(3)
             except KeyboardInterrupt:
                 chat.terminate()
                 break
@@ -166,11 +203,6 @@ class ChatViewModule():
         for time in cut_time:
             start_time = time[0]
             end_time = time[1]
-            print('+++++++++++++++++++++++++')
-            print(start_time)
-            print(end_time)
-            print('+++++++++++++++++++++++++')
-
             filename = date + '_' + self.video_id + '_' + title + '_' + str(start_time) + '-' + str(end_time) + '.mkv'
             save_path = os.getcwd() + '/tmp/' + filename
 
@@ -189,7 +221,7 @@ class ChatViewModule():
             except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
-                database_name = 'chatdata_' + self.video_id + '.db'
+                database_name = 'chatdata_' + self.date + '_' + self.video_id + '.db'
                 database_path = 'databases/'
                 out_path = "/mnt/media/Youtube/databases/"
                 if not os.path.exists(out_path):
@@ -198,7 +230,7 @@ class ChatViewModule():
                 os.remove(file_path)
                 raise e
 
-        database_name = 'chatdata_' + self.video_id + '.db'
+        database_name = 'chatdata_' + self.date + '_' + self.video_id + '.db'
         database_path = 'databases/'
         out_path = "/mnt/media/Youtube/databases/"
         if not os.path.exists(out_path):
@@ -206,18 +238,36 @@ class ChatViewModule():
         shutil.move(database_path + database_name, out_path + database_name)
         os.remove(file_path)
 
-    def test (self):
-        print(self.video_id)
+    def get_highlight(self):
+        # '''
+        pool = Pool(1)
+        result = pool.apply_async(self.get_chatdata)
+        result.wait()
+        # '''
+        # self.get_chatdata()
+        print('get chat')
+        score_data = self.count_score()
+        self.plot_peak(score_data)
+        print('get score')
+        peak_time = self.get_peaktime(score_data)
+        highlight_urls = []
+        for sec in peak_time:
+            url = self.url +  '&t=' + str(sec) + 's'
+            print(url)
+            highlight_urls.append([sec, url])
+        out_path = "/mnt/media/Youtube/"
+        # shutil.move(self.db_name, out_path + self.db_name)
+        print('move database')
+        return highlight_urls
 
 
 if __name__ == '__main__':
     id = input('ID:')
-    chatviewer = ChatViewModule(id) #'CGTaqNWE7HU'
-    print(chatviewer.video_id)
-    chatviewer.test()
-    chatviewer.cut_movie(None,None,None,None)
-    # chatviewer.get_chatdata()
-    # chatviewer.get_chatdata()
+    cdm = ChatDataModule(id) #'CGTaqNWE7HU'
+    # print(chatviewer.video_id)
+    # chatviewer.test()
+    # chatviewer.cut_movie(None,None,None,None)
+    cdm.get_chatdata()
     # data = chatviewer.count_score()
     # chatviewer.plot_peak(data)
     # chatviewer.cut_movie('/home/dorothy/work/python/discord_Youtube-dlBot/tmp/202103072134_on1Tv63h8y8_【#にじARK​​】異世界農家　舞元【にじさんじ／舞元啓介】.mp4')

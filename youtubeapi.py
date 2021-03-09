@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 
 import json
+import datetime
 from apiclient.discovery import build
+from datetime import datetime as dt
 import property
 
 API_KEY = property.YOUTUBE_API_KEY
@@ -19,18 +21,82 @@ class YoutubeApi():
 
     def search_live(self, channel_id):
         response = self.youtube.search().list(
-            part = 'snippet',
+            part = 'id',
             channelId = channel_id,
-            type = 'channel'
+            eventType = 'live',
+            type = 'video'
+        ).execute()
+        return response
+
+    def get_livedetail(self, video_id):
+        response = self.youtube.videos().list(
+            part = 'snippet,liveStreamingDetails',
+            id = video_id
+        ).execute()
+        if 'liveStreamingDetails' not in response['items'][0].keys():
+            raise
+        return response
+
+    def get_channel_name(self, response):
+        name = response['items'][0]['snippet']['channelTitle']
+        return name
+
+    def get_title(self, response):
+        title = response['items'][0]['snippet']['title']
+        return title
+
+    def get_thumbnail_url(self, response):
+        url = response['items'][0]['snippet']['thumbnails']['maxres']['url']
+        return url
+
+    def get_starttime(self, response):
+        try:
+            actualStartTime = response['items'][0]['liveStreamingDetails']['actualStartTime']
+        except:
+            actualStartTime = '1970-01-01 00:00:00'
+        return actualStartTime
+
+    def get_endtime(self, response):
+        try:
+            actualEndTime = response['items'][0]['liveStreamingDetails']['actualEndTime']
+        except:
+            actualEndTime = '1970-01-01 00:00:00'
+        return actualEndTime
+
+    def get_starttime_UNIX(self, response):
+        start_time = self.get_starttime(response=response)
+        start_time = start_time.replace('T', ' ').replace('Z', '') + '+0000'
+        start_time_UNIX = int(dt.strptime(start_time, '%Y-%m-%d %H:%M:%S%z').timestamp() * 1000)
+        return start_time_UNIX
+
+    def get_endtime_UNIX(self, response):
+        end_time = self.get_endtime(response=response)
+        end_time = end_time.replace('T', ' ').replace('Z', '') + '+0000'
+        end_time_UNIX = int(dt.strptime(end_time, '%Y-%m-%d %H:%M:%S%z').timestamp() * 1000)
+        return end_time_UNIX
+    
+    def get_Live(self, video_id):
+        response = self.youtube.liveBroadcasts().list(
+            part = 'contentDetails',
+            channelId = channel_id
         ).execute()
         return response
 
 
 if __name__ == "__main__":
     api = YoutubeApi()
-    res = api.search_live(input())
+    # res = api.search_live(input())
+    res = api.get_livedetail(input('id:'))
+    print(api.get_starttime_UNIX(res))
+    print(api.get_endtime_UNIX(res))
+    print(api.get_starttime(res))
+    print(api.get_endtime(res))
+    # print(type(res))
     # print(res)
+    '''
     for item in res.get('items', []):
         print(json.dumps(item, indent=2, ensure_ascii=False))
-    
-
+    # '''
+    # actualStartTime = res['items'][0]['liveStreamingDetails']['actualStartTime']
+    # print(res.get('liveStreamingDetails'))
+    # print(res['liveStreamingDetails']['actualStartTime'])

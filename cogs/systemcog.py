@@ -118,8 +118,12 @@ class SystemCog(commands.Cog):
         await self.bot.get_channel(property.LOG_CHANNEL).send('```' + traceback.format_exc() + '```')
 
     @commands.command(enabled=False)
-    async def send_output_log(self, ctx, info, url):
-        await self.bot.get_channel(property.OUTPUT_CHANNEL).send('**Download Success : **' + '%(title)s' % info + '\n' + url)
+    async def send_video_output_log(self, ctx, info, url):
+        await self.bot.get_channel(property.VIDEO_OUTPUT_CHANNEL).send('**Download Success : **' + '%(title)s' % info + '\n' + url)
+
+    @commands.command(enabled=False)
+    async def send_highlight_output_log(self, ctx, file, embed):
+        await self.bot.get_channel(property.HIGHLIGHT_OUTPUT_CHANNEL).send(file=file, embed=embed)
 
 
 def setup(bot):
