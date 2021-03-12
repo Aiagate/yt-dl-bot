@@ -53,6 +53,8 @@ class ChatDataModule():
         '''
         ytapi = youtubeapi.YoutubeApi()
 
+        self.livedetail = ytapi.get_livedetail(self.video_id)
+
         self.starttime = ytapi.get_starttime_UNIX(self.livedetail)
         self.endtime = ytapi.get_endtime_UNIX(self.livedetail)
         print(self.starttime)
@@ -87,14 +89,14 @@ class ChatDataModule():
                 
                 score = score + 1
 
-            '''
+            # '''
             t = str(self.starttime) + '\t' +\
             str(seektime) + '\t' +\
             str(self.endtime) + '\t' +\
             str(score) + '\t' +\
             str((sum(average_count)+1) / len(average_count)) + '\t' +\
             str(score / ((sum(average_count)+1) / len(average_count)))
-            '''
+            # '''
 
             # print(t)
 
@@ -242,13 +244,19 @@ class ChatDataModule():
         # '''
         pool = Pool(1)
         result = pool.apply_async(self.get_chatdata)
-        result.wait()
-        # '''
-        # self.get_chatdata()
         print('get chat')
+        result.wait()
+
+        ytapi = youtubeapi.YoutubeApi()
+        while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) != False:
+            time.sleep(60)
+
+        self.livedetail = ytapi.get_livedetail(self.video_id)
+
+        print('get score')
         score_data = self.count_score()
         self.plot_peak(score_data)
-        print('get score')
+        print('get peaktime')
         peak_time = self.get_peaktime(score_data)
         highlight_urls = []
         for sec in peak_time:
@@ -274,5 +282,3 @@ if __name__ == '__main__':
     # cut_time = chatviewer.get_peaktime(data)
     # print(cut_time)
     # chatviewer.plot_peak(data)
-
-

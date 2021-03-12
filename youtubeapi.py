@@ -49,18 +49,29 @@ class YoutubeApi():
         url = response['items'][0]['snippet']['thumbnails']['maxres']['url']
         return url
 
+    def get_islive(self, response):
+        try:
+            is_live = response['items'][0]['liveBroadcastContent']
+            if is_live == 'None':
+                is_live = False
+            else:
+                is_live = True
+        except:
+            is_live = False
+        return is_live
+
     def get_starttime(self, response):
         try:
             actualStartTime = response['items'][0]['liveStreamingDetails']['actualStartTime']
         except:
-            actualStartTime = '1970-01-01 00:00:00'
+            actualStartTime = '1970-01-01 00:00:00Z'
         return actualStartTime
 
     def get_endtime(self, response):
         try:
             actualEndTime = response['items'][0]['liveStreamingDetails']['actualEndTime']
         except:
-            actualEndTime = '1970-01-01 00:00:00'
+            actualEndTime = '1970-01-01 00:00:00Z'
         return actualEndTime
 
     def get_starttime_UNIX(self, response):
@@ -87,6 +98,7 @@ if __name__ == "__main__":
     api = YoutubeApi()
     # res = api.search_live(input())
     res = api.get_livedetail(input('id:'))
+    '''
     print(api.get_starttime_UNIX(res))
     print(api.get_endtime_UNIX(res))
     print(api.get_starttime(res))
