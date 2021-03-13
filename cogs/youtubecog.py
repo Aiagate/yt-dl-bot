@@ -113,7 +113,7 @@ class YoutubeCog(commands.Cog):
             raise e
 
         print(text)
-        await ctx.send(text)
+        await ctx.reply(text)
 
         fn = partial(ytm.download_video, url=url)
         try:
@@ -152,7 +152,7 @@ class YoutubeCog(commands.Cog):
         # url = args[0]
         url = self.parse_url(args[0])
 
-        await ctx.send('Starting get highlight...')
+        await ctx.reply('Starting get highlight...')
 
         ytm = youtubemodule.YoutubeModule()
         video_id = ytm.get_videoid(url=url)
