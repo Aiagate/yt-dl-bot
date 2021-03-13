@@ -264,7 +264,7 @@ class ChatDataModule():
             print(url)
             highlight_urls.append([sec, url])
         out_path = "/mnt/media/Youtube/"
-        shutil.move(self.db_name, out_path + self.db_name)
+        shutil.move(self.db_name, out_path) # + self.db_name)
         print('move database')
         return highlight_urls
 
