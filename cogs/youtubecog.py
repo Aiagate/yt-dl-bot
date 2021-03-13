@@ -152,6 +152,8 @@ class YoutubeCog(commands.Cog):
         # url = args[0]
         url = self.parse_url(args[0])
 
+        await ctx.send('Starting get highlight...')
+
         ytm = youtubemodule.YoutubeModule()
         video_id = ytm.get_videoid(url=url)
 
