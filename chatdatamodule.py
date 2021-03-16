@@ -246,9 +246,10 @@ class ChatDataModule():
         result = pool.apply_async(self.get_chatdata)
         print('get chat')
         result.wait()
+        print('sleep')
 
         ytapi = youtubeapi.YoutubeApi()
-        while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) != True:
+        while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) == True:
             time.sleep(60)
 
         self.livedetail = ytapi.get_livedetail(self.video_id)
