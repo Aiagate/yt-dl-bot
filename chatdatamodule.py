@@ -248,7 +248,7 @@ class ChatDataModule():
         result.wait()
 
         ytapi = youtubeapi.YoutubeApi()
-        while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) != False:
+        while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) != True:
             time.sleep(60)
 
         self.livedetail = ytapi.get_livedetail(self.video_id)

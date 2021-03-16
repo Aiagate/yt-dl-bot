@@ -51,13 +51,15 @@ class YoutubeApi():
 
     def get_islive(self, response):
         try:
-            is_live = response['items'][0]['liveBroadcastContent']
+            is_live = response['items'][0]['snippet']['liveBroadcastContent']
             if is_live == 'None':
                 is_live = False
-            else:
+            elif is_live == 'live':
                 is_live = True
+            else:
+                raise
         except:
-            is_live = False
+            raise
         return is_live
 
     def get_starttime(self, response):
@@ -107,7 +109,9 @@ if __name__ == "__main__":
     # print(res)
     '''
     for item in res.get('items', []):
-        print(json.dumps(item, indent=2, ensure_ascii=False))
+        print(json.dumps(item['liveStreamingDetails'], indent=2, ensure_ascii=False))
+        print(item['snippet']['liveBroadcastContent'])
+        print(api.get_islive(res))
     # '''
     # actualStartTime = res['items'][0]['liveStreamingDetails']['actualStartTime']
     # print(res.get('liveStreamingDetails'))
