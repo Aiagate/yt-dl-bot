@@ -52,7 +52,7 @@ class YoutubeApi():
     def get_islive(self, response):
         try:
             is_live = response['items'][0]['snippet']['liveBroadcastContent']
-            if is_live == 'None':
+            if is_live == 'none':
                 is_live = False
             elif is_live == 'live':
                 is_live = True
