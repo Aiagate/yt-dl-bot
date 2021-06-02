@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from pytchat import create
+from pytchat import LiveChat
 import time
 import datetime
 import os
@@ -153,40 +153,33 @@ class ChatDataModule():
             except Exception as e:
                 raise e
 
-        chat = create(video_id=self.video_id)
-
-        while chat.is_alive():
-            try:
-                data = chat.get()
-                items = data.items
-                for c in items:
-                    self.logger.info(
-                        f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
-                    # print(type(c.author.name))
-                    with db_connect.DatabaseConnect(db_name=self.db_name) as db:
-                        try:
-                            sql = 'insert into chatdata values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-                            result = db.execute(sql,
-                                                c.id,
-                                                c.author.name,
-                                                c.author.channelId,
-                                                c.type,
-                                                c.message,
-                                                c.timestamp,
-                                                c.datetime,
-                                                c.amountValue,
-                                                c.amountString,
-                                                c.currency,
-                                                c.author.isVerified,
-                                                c.author.isChatOwner,
-                                                c.author.isChatSponsor,
-                                                c.author.isChatModerator
-                                                )
-                        except Exception as e:
-                            raise e
-
-            except:
-                pass
+        with db_connect.DatabaseConnect(db_name=self.db_name) as db:
+            chat = LiveChat(video_id=self.video_id)
+            while chat.is_alive():
+                try:
+                    data = chat.get()
+                    items = data.items
+                    for c in items:
+                        self.logger.info(f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
+                        sql = 'insert into chatdata values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                        result = db.execute(sql,
+                                            c.id,
+                                            c.author.name,
+                                            c.author.channelId,
+                                            c.type,
+                                            c.message,
+                                            c.timestamp,
+                                            c.datetime,
+                                            c.amountValue,
+                                            c.amountString,
+                                            c.currency,
+                                            c.author.isVerified,
+                                            c.author.isChatOwner,
+                                            c.author.isChatSponsor,
+                                            c.author.isChatModerator
+                                            )
+                except:
+                    pass
             '''
             except KeyboardInterrupt:
                 # chat.terminate()
