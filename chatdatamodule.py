@@ -178,16 +178,13 @@ class ChatDataModule():
                                             c.author.isChatSponsor,
                                             c.author.isChatModerator
                                             )
-                except:
-                    pass
-            '''
-            except KeyboardInterrupt:
-                # chat.terminate()
-                break
-            except Exception as e:
-                # chat.terminate()
-                raise e
-            '''
+                
+                except KeyboardInterrupt:
+                    chat.terminate()
+                    break
+                except Exception as e:
+                    chat.terminate()
+                    raise e
             time.sleep(3)
         return 'Success!'
 
