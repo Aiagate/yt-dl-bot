@@ -183,13 +183,18 @@ class ChatDataModule():
                                                 )
                         except Exception as e:
                             raise e
-                time.sleep(3)
+
+            except:
+                pass
+            '''
             except KeyboardInterrupt:
                 # chat.terminate()
                 break
             except Exception as e:
                 # chat.terminate()
                 raise e
+            '''
+            time.sleep(3)
         return 'Success!'
 
     def cut_movie(self, file_path, title, date, pool):
@@ -292,7 +297,7 @@ if __name__ == '__main__':
 
     cdm = ChatDataModule('MPX-err6GTo')  # 'CGTaqNWE7HU'
     cdm.db_name = 'databases/chatdata_TEST_MPX-err6GTo.db'
-    cdm.get_chatdata()
-    score = cdm.count_score()
-    cdm.plot_peak(score)
+    cdm.get_highlight()
+    # score = cdm.count_score()
+    # cdm.plot_peak(score)
 
