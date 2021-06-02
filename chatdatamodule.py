@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from pytchat import LiveChat
+from pytchat import create
 import time
 import datetime
 import os
@@ -154,7 +154,7 @@ class ChatDataModule():
                 raise e
 
         with db_connect.DatabaseConnect(db_name=self.db_name) as db:
-            chat = LiveChat(video_id=self.video_id)
+            chat = create(video_id=self.video_id)
             while chat.is_alive():
                 try:
                     data = chat.get()
