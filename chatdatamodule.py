@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from pytchat import LiveChat
+from pytchat import create
 import time
 import datetime
 import os
@@ -144,7 +144,6 @@ class ChatDataModule():
         return peaktime
 
     def get_chatdata(self):
-        chat = LiveChat(video_id=self.video_id)
 
         with db_connect.DatabaseConnect(db_name=self.db_name) as db:
             try:
@@ -153,6 +152,8 @@ class ChatDataModule():
                            property.CHAT_DATALIST)
             except Exception as e:
                 raise e
+
+        chat = create(video_id=self.video_id)
 
         while chat.is_alive():
             try:
