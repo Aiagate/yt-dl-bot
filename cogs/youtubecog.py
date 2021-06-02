@@ -180,6 +180,7 @@ class YoutubeCog(commands.Cog):
         except Exception as e:
             await ctx.invoke(self.bot.get_command('send_error_log'), e)
             raise e
+        # '''
 
         # print(len(highlight_url))
         # res = '\n'.join(highlight_url)

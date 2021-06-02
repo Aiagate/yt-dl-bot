@@ -159,7 +159,7 @@ class ChatDataModule():
                 data = chat.get()
                 items = data.items
                 for c in items:
-                    self.logger.debug(
+                    self.logger.info(
                         f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
                     # print(type(c.author.name))
                     with db_connect.DatabaseConnect(db_name=self.db_name) as db:
@@ -291,7 +291,8 @@ if __name__ == '__main__':
     # chatviewer.plot_peak(data)
 
     cdm = ChatDataModule('MPX-err6GTo')  # 'CGTaqNWE7HU'
-    cdm.db_name = '/mnt/media/Youtube/databases/chatdata_2021-06-02-1546_MPX-err6GTo.db'
+    cdm.db_name = 'databases/chatdata_TEST_MPX-err6GTo.db'
+    cdm.get_chatdata()
     score = cdm.count_score()
     cdm.plot_peak(score)
 
