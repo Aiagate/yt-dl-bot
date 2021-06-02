@@ -185,10 +185,10 @@ class ChatDataModule():
                             raise e
                 time.sleep(3)
             except KeyboardInterrupt:
-                chat.terminate()
+                # chat.terminate()
                 break
             except Exception as e:
-                chat.terminate()
+                # chat.terminate()
                 raise e
         return 'Success!'
 
