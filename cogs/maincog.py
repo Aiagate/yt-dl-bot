@@ -7,6 +7,7 @@ import urllib
 from discord.ext import commands
 import property
 
+
 class MainCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -18,17 +19,17 @@ class MainCog(commands.Cog):
             return True
         except Exception as e:
             return False
-    
+
     @staticmethod
-    def get_domain(url):
+    def get_domain(self, url):
         try:
             url = requests.get(url).url.split('&')[0]
             parsed_url = urllib.parse.urlparse(url)
-            print(parsed_url.netloc)
+            self.bot.logger.info(parsed_url.netloc)
             return parsed_url.netloc
         except Exception as e:
             raise e
-    
+
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         '''
@@ -46,18 +47,18 @@ class MainCog(commands.Cog):
         if message.author.id == 818670361985286165:
             for text in message.content.split(' '):
                 if self.is_url(text):
-                    if self.get_domain(text) == 'www.youtube.com':
-                        message.content = '!echo ' + text
+                    if self.get_domain(self, text) == 'www.youtube.com':
+                        message.content = '!youtube highlight ' + text
                         # message.content = '!highlight ' + text
                         break
-        #Bot同士による会話を制限
+        # Bot同士による会話を制限
         elif message.author.bot:
             return
-        #コマンドの場合処理をしない
+        # コマンドの場合処理をしない
         elif '!' in message.content:
             return
         elif self.is_url(message.content):
-            if self.get_domain(message.content) == 'www.youtube.com':
+            if self.get_domain(self, message.content) == 'www.youtube.com':
                 if message.channel.id == property.HIGHLIGHT_CHANNEL:
                     message.content = '!youtube highlight ' + message.content
                 elif message.channel.id == property.DOWNLOAD_CHANNEL:
@@ -65,38 +66,10 @@ class MainCog(commands.Cog):
         else:
             return
 
-        print(message.content)
+        self.bot.logger.info(message.content)
         await self.bot.process_commands(message)
         return
 
-        #URLを展開
-        '''
-        try:
-            url = requests.get(message.content).url.split('&')[0]
-            parsed_url = urllib.parse.urlparse(url)
-            message.content = '!urlparse ' + url
-        except Exception as e:
-            # raise e
-            return
-
-        return
-        '''
-
-    @commands.command(name='urlparse')
-    async def urlparse(self, ctx, *args, **kwargs):
-        #URLを展開
-        try:
-            url = requests.get(args[0]).url.split('&')[0]
-            parsed_url = urllib.parse.urlparse(url)
-        except Exception as e:
-            raise e
-
-        #YoutubeのURLの場合処理を続行
-        if parsed_url.netloc == 'www.youtube.com':
-            if ctx.channel.id == property.DOWNLOAD_CHANNEL:
-                await ctx.invoke(self.bot.get_command('youtube download'), url)
-            elif ctx.channel.id == property.HIGHLIGHT_CHANNEL:
-                await ctx.invoke(self.bot.get_command('youtube highlight'), url)
 
 def setup(bot):
     return bot.add_cog(MainCog(bot))

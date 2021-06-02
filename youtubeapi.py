@@ -100,7 +100,7 @@ if __name__ == "__main__":
     api = YoutubeApi()
     # res = api.search_live(input())
     res = api.get_livedetail(input('id:'))
-    '''
+    # '''
     print(api.get_starttime_UNIX(res))
     print(api.get_endtime_UNIX(res))
     print(api.get_starttime(res))
