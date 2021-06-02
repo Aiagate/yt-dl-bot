@@ -127,7 +127,7 @@ class ChatDataModule():
 
         peaktime = []
         i = 0
-        limit = 0.4
+        limit = 0.3
         while i < score_size:
             if score_data[i] > max_score * limit:
                 peaktime_sec = max(i - 1, 0)
