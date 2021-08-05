@@ -115,7 +115,20 @@ class SystemCog(commands.Cog):
     async def send_error_log(self, ctx, error, *args, **kwargs):
         log_channel = self.bot.get_channel(property.LOG_CHANNEL)
         await ctx.reply('Error: Check ' + log_channel.mention)
-        await self.bot.get_channel(property.LOG_CHANNEL).send('```' + traceback.format_exc() + '```')
+
+        error_log = str(traceback.format_exc())
+
+        embed = discord.Embed(title='', description='') #, color=0xff0000)
+        num = 1
+        while len(error_log) > 1024:
+            embed.add_field(name=str(num), value=error_log[:1024], inline=False)
+            error_log = error_log[1024:]
+            num += 1
+        embed.add_field(name=str(num), value=error_log, inline=False)
+        
+        await self.bot.get_channel(property.LOG_CHANNEL).send(embed = embed)
+
+        # await self.bot.get_channel(property.LOG_CHANNEL).send('```' + traceback.format_exc() + '```')
 
     @commands.command(enabled=False)
     async def send_video_output_log(self, ctx, info, url):
