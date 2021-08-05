@@ -167,7 +167,7 @@ class YoutubeModule():
             # time.sleep(10)
 
             #ffmpegでmp4コーデックに変換
-            save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
+            save_path = "/mnt/media/Youtube/" #+ now.strftime('%Y-%m-%d') + '/'
             stream = ffmpeg.input(outpath % info)
             # stream = ffmpeg.overwrite_output(stream=stream)
             stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
