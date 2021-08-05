@@ -11,6 +11,7 @@ import sys
 import urllib
 from multiprocessing import Pool
 
+import ffmpeg
 import youtube_dl
 
 from db_connect import DatabaseConnect
@@ -164,13 +165,24 @@ class YoutubeModule():
 
             #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
             # time.sleep(10)
+
+            #ffmpegでmp4コーデックに変換
+            save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
+            stream = ffmpeg.input(outpath % info)
+            # stream = ffmpeg.overwrite_output(stream=stream)
+            stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
+            ffmpeg.run(stream)
             
+            '''
             #ファイルをtmpフォルダから移動
             save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
-            shutil.move(outpath % info,  save_path + title + '.%(ext)s' % info)
+            shutil.move(outpath % info,  save_path + title + '.mp4')
+            # shutil.move(outpath % info,  save_path + title + '.%(ext)s' % info)
+            '''
             return info
+            
 
         '''
         データベースへの登録は別関数に実装すべき？
@@ -258,6 +270,10 @@ class YoutubeModule():
             'socket_timeout': 300,
             # 'postprocessors': [{
             # 'key': 'FFmpegFixupM4a',
+            # 'key': 'FFmpegVideoConvertor',
+            # 'acodec': 'copy',
+            # 'vcodec': 'copy',
+            # 'preferedformat': 'mp4',
             # }],
         }
         return ydl_ops
