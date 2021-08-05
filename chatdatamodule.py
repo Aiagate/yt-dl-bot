@@ -270,7 +270,6 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=INFO,
         format='[ %(levelname)-8s] %(asctime)s | %(name)-24s %(funcName)-16s| %(message)s',
-        # format='[ %(levelname)-8s] %(asctime)s | %(name)s\t%(funcName)s\t| %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     id = input('ID:')
