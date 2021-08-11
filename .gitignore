@@ -4,6 +4,7 @@ ydlbot-workspace.code-workspace
 __pycache__/
 tmp/
 venv/
+.venv/
 
 *.db
 *.db-journal

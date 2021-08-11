@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! ./.venv/bin/python
 # ---standard library---
 import sqlite3
 import traceback
