@@ -10,3 +10,4 @@ venv/
 *.db-journal
 test*.*
 property.py
+*.log

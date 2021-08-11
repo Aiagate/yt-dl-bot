@@ -1,11 +1,9 @@
 #! ./.venv/bin/python
 import asyncio
 import discord
-import logging
 from discord.ext import commands
 import traceback
 import property
-
 
 class SystemCog(commands.Cog):
     def __init__(self, bot):
@@ -127,6 +125,12 @@ class SystemCog(commands.Cog):
         embed.add_field(name=str(num), value=error_log, inline=False)
         
         await self.bot.get_channel(property.LOG_CHANNEL).send(embed = embed)
+
+        # self.logger.exception(traceback.format_exc())
+        # self.bot.logger.exception(traceback.format_exc())
+        for line in error_log.split('\n'):
+            self.bot.logger.error(line)
+
 
         # await self.bot.get_channel(property.LOG_CHANNEL).send('```' + traceback.format_exc() + '```')
 

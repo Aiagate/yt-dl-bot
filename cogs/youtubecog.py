@@ -144,7 +144,7 @@ class YoutubeCog(commands.Cog):
 
     @download_video.error
     async def download_video_error(self, ctx, error):
-        self.bot.logger.info(error)
+        # self.bot.logger.info(error)
         await ctx.invoke(self.bot.get_command('send_error_log'), error)
 
     @youtube_cog.command(name='highlight')

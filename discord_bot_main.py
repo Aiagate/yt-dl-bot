@@ -49,11 +49,20 @@ class MyBot(commands.Bot):
 if __name__ == '__main__':
     logging.basicConfig(
         level=INFO,
-        format='[ %(levelname)-8s] %(asctime)s | %(name)-24s %(funcName)-16s| %(message)s',
-        # format='[ %(levelname)-8s] %(asctime)s | %(name)s\t%(funcName)s\t| %(message)s',
+        format='[ %(levelname)-8s] %(asctime)s | %(name)-16s %(funcName)-16s| %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
+    fh = logging.FileHandler(filename='log/discord_bot_main.log', encoding='utf-8')
+    fh.setLevel=INFO
+    fh.setFormatter(logging.Formatter('[ %(levelname)-8s] %(asctime)s | %(name)-16s %(funcName)-24s | %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+
+    dlogger = getLogger('discord')
+    dlogger.addHandler(fh)
     logger = getLogger(__name__)
+    logger.addHandler(fh)
 
     bot = MyBot(command_prefix='!')
     bot.run(property.DISCORD_KEY)
+    logger2 = getLogger('youtubemodule')
+    logger2.addHandler(fh)
+
