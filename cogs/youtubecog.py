@@ -109,7 +109,8 @@ class YoutubeCog(commands.Cog):
             await ctx.invoke(self.bot.get_command('send_error_log'), e)
             raise e
 
-        self.bot.logger.info(text)
+        for t in text.split('\n'):
+            self.bot.logger.info(t)
         await ctx.reply(text)
 
         fn = partial(ytm.download_video, url=url)
@@ -189,7 +190,7 @@ class YoutubeCog(commands.Cog):
             thumbnail_url = ytapi.get_thumbnail_url(livedetail)
 
             graph_image = cdm.image_path
-            self.bot.logger.info(graph_image)
+            self.bot.logger.debug(graph_image)
             file = File(graph_image, filename='image.png')
 
             embed = Embed(

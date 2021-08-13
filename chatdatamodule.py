@@ -49,8 +49,8 @@ class ChatDataModule():
 
         self.starttime = ytapi.get_starttime_UNIX(self.livedetail)
         self.endtime = ytapi.get_endtime_UNIX(self.livedetail)
-        self.logger.info(f'Video start time [{self.starttime}]')
-        self.logger.info(f'Video end time [{self.endtime}]')
+        self.logger.debug(f'Video start time [{self.starttime}]')
+        self.logger.debug(f'Video end time [{self.endtime}]')
 
         seektime = self.starttime
         score_data = []
@@ -158,7 +158,7 @@ class ChatDataModule():
                     data = chat.get()
                     items = data.items
                     for c in items:
-                        self.logger.info(f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
+                        self.logger.debug(f"{c.datetime} {c.timestamp} [{c.author.name}]- {c.message}")
                         sql = 'insert into chatdata values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
                         result = db.execute(sql,
                                             c.id,
@@ -234,9 +234,9 @@ class ChatDataModule():
     def get_highlight(self):
         pool = Pool(1)
         result = pool.apply_async(self.get_chatdata)
-        self.logger.info('get chat')
+        self.logger.debug('get chat')
         result.wait()
-        self.logger.info('sleep')
+        self.logger.debug('sleep')
 
         ytapi = youtubeapi.YoutubeApi()
         while ytapi.get_islive(ytapi.get_livedetail(self.video_id)) == True:
@@ -244,10 +244,10 @@ class ChatDataModule():
 
         self.livedetail = ytapi.get_livedetail(self.video_id)
 
-        self.logger.info('get score')
+        self.logger.debug('get score')
         score_data = self.count_score()
         self.plot_peak(score_data)
-        self.logger.info('get peaktime')
+        self.logger.debug('get peaktime')
         peak_time = self.get_peaktime(score_data)
         highlight_urls = []
         for sec in peak_time:
@@ -256,7 +256,7 @@ class ChatDataModule():
             highlight_urls.append([sec, url])
         out_path = "/mnt/media/Youtube/databases/"
         shutil.move(self.db_name, out_path)  # + self.db_name)
-        self.logger.info('move database')
+        self.logger.debug('move database')
         return highlight_urls
 
 
