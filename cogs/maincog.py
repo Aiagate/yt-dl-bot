@@ -1,10 +1,13 @@
 #! ./.venv/bin/python
-import asyncio
-import discord
+
+# ---standard library---
 import requests
 import urllib
 
+# ---third party library---
 from discord.ext import commands
+
+# ---local library---
 import property
 
 

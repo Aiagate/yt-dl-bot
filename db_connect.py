@@ -1,5 +1,10 @@
 #! ./.venv/bin/python
 
+# ---standard library---
+
+# ---third party library---
+
+# ---local library---
 import sqlite3
 
 

@@ -1,22 +1,19 @@
 #! ./.venv/bin/python
 
-import asyncio
+# ---standard library---
 import datetime
-from functools import partial
+import importlib
 import os
 import requests
-import signal
-import sqlite3
-import time
-import urllib
 import shutil
-import importlib
-from multiprocessing import Pool
+from functools import partial
 
-import discord
+# ---third party library---
+from discord import Embed, File
 from discord.ext import commands
 import youtube_dl
 
+# ---local library---
 import db_connect
 import youtubemodule
 import chatdatamodule
@@ -193,9 +190,9 @@ class YoutubeCog(commands.Cog):
 
             graph_image = cdm.image_path
             self.bot.logger.info(graph_image)
-            file = discord.File(graph_image, filename='image.png')
+            file = File(graph_image, filename='image.png')
 
-            embed = discord.Embed(
+            embed = Embed(
                 title=title, description=channel_name, color=0xff0000)
             embed.set_thumbnail(url=thumbnail_url)
             highlight_url_text = ''

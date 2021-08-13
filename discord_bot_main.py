@@ -1,4 +1,5 @@
 #! ./.venv/bin/python
+
 # ---standard library---
 import sqlite3
 import traceback
@@ -26,7 +27,7 @@ class MyBot(commands.Bot):
         for cog in property.INITIAL_EXTENSIONS:
             try:
                 self.load_extension(cog)
-                self.logger.info('Success: Cog loaded ({})'.format(cog))
+                self.logger.info(f'Success: Cog loaded ({cog})')
             except Exception as e:
                 raise e
                 # traceback.print_exc()

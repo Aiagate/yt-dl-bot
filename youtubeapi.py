@@ -1,9 +1,12 @@
 #! ./.venv/bin/python
 
-import json
-import datetime
-from apiclient.discovery import build
+# ---standard library---
 from datetime import datetime as dt
+
+# ---third party library---
+from googleapiclient.discovery import build
+
+# ---local library---
 import property
 
 API_KEY = property.YOUTUBE_API_KEY
@@ -88,7 +91,7 @@ class YoutubeApi():
         end_time_UNIX = int(dt.strptime(end_time, '%Y-%m-%d %H:%M:%S%z').timestamp() * 1000)
         return end_time_UNIX
     
-    def get_Live(self, video_id):
+    def get_Live(self, channel_id):
         response = self.youtube.liveBroadcasts().list(
             part = 'contentDetails',
             channelId = channel_id

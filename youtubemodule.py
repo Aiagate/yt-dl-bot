@@ -1,21 +1,17 @@
 #! ./.venv/bin/python
-import asyncio
+
+# ---standard library---
 import datetime
-import json
-import os
-import re
-import sqlite3
-import shutil
 import time
-import sys
 import urllib
 from multiprocessing import Pool
 
+# ---third party library---
 import ffmpeg
 import youtube_dl
 
+# ---local library---
 from db_connect import DatabaseConnect
-# from chatviewmodule import ChatViewModule
 from utils import (
     OverlappingError
 )

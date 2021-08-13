@@ -1,8 +1,14 @@
 #! ./.venv/bin/python
+
+# ---standard library---
 import asyncio
-import discord
-from discord.ext import commands
 import traceback
+
+# ---third party library---
+from discord import Embed
+from discord.ext import commands
+
+# ---local library---
 import property
 
 class SystemCog(commands.Cog):
@@ -116,7 +122,7 @@ class SystemCog(commands.Cog):
 
         error_log = str(traceback.format_exc())
 
-        embed = discord.Embed(title='', description='') #, color=0xff0000)
+        embed = Embed(title='', description='') #, color=0xff0000)
         num = 1
         while len(error_log) > 1024:
             embed.add_field(name=str(num), value=error_log[:1024], inline=False)

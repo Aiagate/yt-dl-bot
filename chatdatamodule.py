@@ -1,27 +1,25 @@
 #! ./.venv/bin/python
 
-from pytchat import create
-import time
+# ---standard library---
 import datetime
-import os
 import importlib
-import ffmpeg
-import numpy
-import sqlite3
-import shutil
 import logging
 from logging import getLogger
-import matplotlib.pyplot as plt
 from multiprocessing import Pool
+import os
+import shutil
+import time
+
+# ---third party library---
+import ffmpeg
+import matplotlib.pyplot as plt
 from moviepy.editor import *
+from pytchat import create
 from collections import deque
 
+# ---local library---
 import db_connect
 import youtubeapi
-# from db_connect import DatabaseConnect
-from utils import (
-    OverlappingError
-)
 import property
 
 
@@ -51,8 +49,8 @@ class ChatDataModule():
 
         self.starttime = ytapi.get_starttime_UNIX(self.livedetail)
         self.endtime = ytapi.get_endtime_UNIX(self.livedetail)
-        self.logger.info('Video start time [{}]'.format(self.starttime))
-        self.logger.info('Video end time [{}]'.format(self.endtime))
+        self.logger.info(f'Video start time [{self.starttime}]')
+        self.logger.info(f'Video end time [{self.endtime}]')
 
         seektime = self.starttime
         score_data = []
@@ -105,11 +103,11 @@ class ChatDataModule():
                 average_count.append(comment_count)
                 average_count.popleft()
 
-            self.logger.info('score {}'.format(score))
+            self.logger.debug(f'score: {score}')
             score_data.append(score)
             seektime = seektime + 30000
 
-        self.logger.debug('score data:'.format(score_data))
+        self.logger.debug(f'score data: {score_data}')
         return score_data
 
     def plot_peak(self, score_data):
@@ -189,10 +187,10 @@ class ChatDataModule():
         return 'Success!'
 
     def cut_movie(self, file_path, title, date, pool):
-        self.logger.debug('video id: {}'.format(self.video_id))
+        self.logger.debug(f'video id: {self.video_id}')
         pool.wait()
         cut_time = self.get_peaktime(self.count_score())
-        self.logger.debug('video id: {}'.format(cut_time))
+        self.logger.debug(f'video id: {cut_time}')
 
         for time in cut_time:
             start_time = time[0]
@@ -215,8 +213,6 @@ class ChatDataModule():
                 shutil.move(save_path, '/mnt/media/Youtube/' +
                             date[:10] + '/' + filename)
             except ffmpeg.Error as e:
-                self.logger.error('stdout: {}'.format(e.stdout.decode('utf8')))
-                self.logger.error('stderr: {}'.format(e.stderr.decode('utf8')))
                 database_name = 'chatdata_' + self.date + '_' + self.video_id + '.db'
                 database_path = 'databases/'
                 out_path = "/mnt/media/Youtube/databases/"
@@ -256,7 +252,7 @@ class ChatDataModule():
         highlight_urls = []
         for sec in peak_time:
             url = self.url + '&t=' + str(sec) + 's'
-            self.logger.info('url: {}'.format(url))
+            self.logger.info(f'url: {url}')
             highlight_urls.append([sec, url])
         out_path = "/mnt/media/Youtube/databases/"
         shutil.move(self.db_name, out_path)  # + self.db_name)
