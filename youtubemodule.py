@@ -240,9 +240,9 @@ class YoutubeModule():
                         elif 'minutes' in arg:
                             time = time * 60
                         elif 'few' in arg:
-                            time = 5
+                            time = 15
                         elif 'shortly' in arg:
-                            time = 5
+                            time = 15
                         else:
                             pass
                 if time >= 0:
