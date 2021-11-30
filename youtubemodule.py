@@ -8,7 +8,8 @@ from multiprocessing import Pool
 
 # ---third party library---
 import ffmpeg
-import youtube_dl
+# import youtube_dl
+import yt_dlp
 
 # ---local library---
 from db_connect import DatabaseConnect
@@ -63,7 +64,8 @@ class YoutubeModule():
             message = 'Video title : ' + title + '\n' \
                       'Download start...'
             return message
-        except youtube_dl.utils.DownloadError as e:
+        # except youtube_dl.utils.DownloadError as e:
+        except yt_dlp.utils.DownloadError as e:
             error = str(e.exc_info[1])
             if 'This live event will begin in' in error:
                 message = str(e.exc_info[1]) + '. Will be downloaded in ' + \
@@ -100,9 +102,11 @@ class YoutubeModule():
                 info = self.get_info(url)
                 is_download = True
                 break
-            except youtube_dl.utils.DownloadError as e: #動画URLが有効でない場合にエラーを返す
+            # except youtube_dl.utils.DownloadError as e: #動画URLが有効でない場合にエラーを返す
+            except yt_dlp.utils.DownloadError as e: #動画URLが有効でない場合にエラーを返す
                 info = e
-            except youtube_dl.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
+            # except youtube_dl.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
+            except yt_dlp.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
                 info = e
             except Exception as e:
                 raise e
@@ -156,7 +160,8 @@ class YoutubeModule():
             result = pool.apply_async(cvm.get_chatdata)
             '''
 
-            with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
+            # with youtube_dl.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
+            with yt_dlp.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
                 info = ydl.extract_info(url, download=True)
 
             # print(result.get())
@@ -168,7 +173,8 @@ class YoutubeModule():
             save_path = "/mnt/media/Youtube/" #+ now.strftime('%Y-%m-%d') + '/'
             stream = ffmpeg.input(outpath % info)
             # stream = ffmpeg.overwrite_output(stream=stream)
-            stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
+            # stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
+            stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='aac')
             ffmpeg.run(stream)
             
             '''
@@ -217,14 +223,16 @@ class YoutubeModule():
         '''
 
     def get_info(self, url):
-        with youtube_dl.YoutubeDL() as ydl:
+        # with youtube_dl.YoutubeDL() as ydl:
+        with yt_dlp.YoutubeDL() as ydl:
             info = ydl.extract_info(url, download=False)
         return info
 
     def live_timer(self, info):
         if type(info) == dict:
             return 0
-        elif type(info) == youtube_dl.utils.DownloadError:
+        # elif type(info) == youtube_dl.utils.DownloadError:
+        elif type(info) == yt_dlp.utils.DownloadError:
             if 'This live event will begin in' in str(info.args) or 'Premiere' in str(info.args):
 
                 # 'ERROR: This live event will begin in 77 minutes.'
