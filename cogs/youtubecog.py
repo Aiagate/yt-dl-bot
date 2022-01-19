@@ -1,9 +1,12 @@
 #! ./.venv/bin/python
 
 # ---standard library---
+from ast import arg
+from asyncio.log import logger
 import datetime
 import importlib
 import os
+import re
 import requests
 import shutil
 from functools import partial
@@ -17,6 +20,7 @@ import youtube_dl
 import db_connect
 import youtubemodule
 import chatdatamodule
+import chatdataextractor
 import youtubeapi
 import property
 
@@ -27,6 +31,7 @@ class YoutubeCog(commands.Cog):
         importlib.reload(db_connect)
         importlib.reload(youtubemodule)
         importlib.reload(chatdatamodule)
+        importlib.reload(chatdataextractor)
         importlib.reload(youtubeapi)
         importlib.reload(property)
         self.bot = bot
@@ -205,7 +210,7 @@ class YoutubeCog(commands.Cog):
                     highlight_url_text = tmp
                 else:
                     embed.add_field(name="highlight", value=highlight_url_text)
-                    highlight_url_text = ''
+                    highlight_url_text = tmp
             if highlight_url_text != '':
                 embed.add_field(name="highlight", value=highlight_url_text)
             else:
@@ -227,6 +232,96 @@ class YoutubeCog(commands.Cog):
             raise e
         return
 
+    @youtube_cog.group(name='search')
+    async def chat_search(self, ctx):
+        cde = chatdataextractor.ChatDataExtractor()
+        cde.table_name = 'chat_data_petit'
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Error: missing option')
+
+    @chat_search.command(name='whitetails')
+    async def search_whitetails(self, ctx, *args):
+        keyword = args[0]
+        await ctx.reply('Starting search chat data...')
+
+        cde = chatdataextractor.ChatDataExtractor()
+        cde.table_name = 'chat_data_whitetails'
+        fn = partial(cde.search_video_keyword, keyword)
+        try:
+            result = await self.bot.loop.run_in_executor(None, fn)
+        except Exception as e:
+            await ctx.invoke(self.bot.get_command('send_error_log'), e)
+            raise e
+        if (len(result) == 0):
+            await ctx.reply(f'Not Found [{keyword}]')
+            return
+        for r in result:
+            video_id = r[0]
+
+            fn = partial(cde.extract_from_keyword, video_id, keyword)
+            try:
+                result2 = await self.bot.loop.run_in_executor(None, fn)
+            except Exception as e:
+                await ctx.invoke(self.bot.get_command('send_error_log'), e)
+                raise e
+
+            embed = Embed(title=f'Search [{keyword}] https://youtu.be/{video_id}',color=0xff0000)
+            embed.set_thumbnail(url=f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg")
+            urls = ''
+            if (len(result2) == 0):
+                await ctx.reply('data was empty')
+                continue
+            for url in result2:
+                if len(urls + url) < 1024:
+                    urls += f'{url}\n'
+                else:
+                    embed.add_field(name='search result', value=urls)
+                    urls = ''
+            if (urls != ''):
+                embed.add_field(name='search result', value=urls)
+                await ctx.invoke(self.bot.get_command('send_search_output_log'), embed)
+
+    @chat_search.command(name='petit')
+    async def search_petit(self, ctx, *args):
+        keyword = args[0]
+        await ctx.reply('Starting search chat data...')
+
+        cde = chatdataextractor.ChatDataExtractor()
+        cde.table_name = 'chat_data_petit'
+        fn = partial(cde.search_video_keyword, keyword)
+        try:
+            result = await self.bot.loop.run_in_executor(None, fn)
+        except Exception as e:
+            await ctx.invoke(self.bot.get_command('send_error_log'), e)
+            raise e
+        if (len(result) == 0):
+            await ctx.reply(f'Not Found [{keyword}]')
+            return
+        for r in result:
+            video_id = r[0]
+
+            fn = partial(cde.extract_from_keyword, video_id, keyword)
+            try:
+                result2 = await self.bot.loop.run_in_executor(None, fn)
+            except Exception as e:
+                await ctx.invoke(self.bot.get_command('send_error_log'), e)
+                raise e
+
+            embed = Embed(title=f'Search [{keyword}] https://youtu.be/{video_id}',color=0xff0000)
+            embed.set_thumbnail(url=f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg")
+            urls = ''
+            if (len(result2) == 0):
+                await ctx.reply('data was empty')
+                continue
+            for url in result2:
+                if len(urls + url) < 1024:
+                    urls += f'{url}\n'
+                else:
+                    embed.add_field(name='search result', value=urls)
+                    urls = ''
+            if (urls != ''):
+                embed.add_field(name='search result', value=urls)
+                await ctx.invoke(self.bot.get_command('send_search_output_log'), embed)
 
 def setup(bot):
     return bot.add_cog(YoutubeCog(bot))
