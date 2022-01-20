@@ -48,7 +48,7 @@ class ChatDataExtractor():
         search_result = []
         for elapsedTime in result:
             t = int(elapsedTime[0])
-            t = t - 30
+            t = t - property.SEEK_TIME_OFFSET
             if (t < time):
                 continue
             url = f'https://youtu.be/{video_id}'
