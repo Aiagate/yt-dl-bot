@@ -4,7 +4,7 @@
 # ---standard library---
 
 # ---third party library---
-import mysql
+import mysql.connector
 # from mysql.connector.connection_cext import CMySQLConnection
 # from mysql.connector.cursor_cext import CMySQLCursor
 
