@@ -4,7 +4,8 @@
 import datetime
 import time
 import urllib
-from multiprocessing import Pool
+import os
+import shutil
 
 # ---third party library---
 import ffmpeg
@@ -148,7 +149,7 @@ class YoutubeModule():
             video_title = '%(title)s' % info
             title = title.translate(str.maketrans(ng_word))
             video_title = video_title.translate(str.maketrans(ng_word))
-            outpath = '/mnt/cache/' + title + '.%(ext)s'
+            outpath = f'/mnt/cache/{title}.%(ext)s'
             # outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
@@ -170,21 +171,21 @@ class YoutubeModule():
             # time.sleep(10)
 
             #ffmpegでmp4コーデックに変換
-            save_path = "/mnt/media/Youtube/" #+ now.strftime('%Y-%m-%d') + '/'
+            tmp_path = "/mnt/cache/convert/"
+            if not os.path.exists(tmp_path):
+                os.mkdir(tmp_path)
             stream = ffmpeg.input(outpath % info)
             # stream = ffmpeg.overwrite_output(stream=stream)
             # stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
-            stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='aac')
+            stream = ffmpeg.output(stream, f'{tmp_path}{title}.mp4', vcodec='copy', acodec='aac')
             ffmpeg.run(stream)
+            os.remove(outpath % info)
             
-            '''
-            #ファイルをtmpフォルダから移動
-            save_path = "/mnt/media/Youtube/" + now.strftime('%Y-%m-%d') + '/'
-            if not os.path.exists(save_path):
-                os.mkdir(save_path)
-            shutil.move(outpath % info,  save_path + title + '.mp4')
-            # shutil.move(outpath % info,  save_path + title + '.%(ext)s' % info)
-            '''
+            #ファイルをcacheフォルダから移動
+            save_path = "/mnt/media/Youtube/" # + now.strftime('%Y-%m-%d') + '/'
+            # if not os.path.exists(save_path):
+            #     os.mkdir(save_path)
+            shutil.move(f'{tmp_path}{title}.mp4',  f'{save_path}{title}.mp4')
             return info
             
 
