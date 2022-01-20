@@ -9,6 +9,7 @@ from mysql.connector.connection_cext import CMySQLConnection
 from mysql.connector.cursor_cext import CMySQLCursor
 
 # ---local library---
+import property
 
 class DatabaseConnect(object):
     def __init__(self, db_name):
@@ -16,7 +17,7 @@ class DatabaseConnect(object):
 
     def __enter__(self):
         try:
-            self.cnx: CMySQLConnection = mysql.connector.connect(host='192.168.1.110', user='ytchat', password='chatdatabase', database=self.db)
+            self.cnx: CMySQLConnection = mysql.connector.connect(host=property.SQL_HOST, user=property.SQL_USER, password=property.SQL_PASSWD, database=self.db)
             self.cursor: CMySQLCursor = self.cnx.cursor()
         except Exception as e:
             self.cnx = None
