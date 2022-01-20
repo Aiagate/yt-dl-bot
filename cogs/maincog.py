@@ -66,8 +66,8 @@ class MainCog(commands.Cog):
                     message.content = '!youtube highlight ' + message.content
                 elif message.channel.id == property.DOWNLOAD_CHANNEL:
                     message.content = '!youtube download ' + message.content
-        # if message.channel.id == property.SEARCH_CHANNEL:
-        #     message.content = '!youtube search whitetails ' + message.content
+        elif message.channel.id == property.SEARCH_CHANNEL:
+            message.content = '!youtube search whitetails ' + message.content
         else:
             return
 
