@@ -44,16 +44,26 @@ class ChatDataExtractor():
                 result = db.cursor.fetchall()
             except Exception as e:
                 raise e
-        time = 0
+        nexttime = 0
         search_result = []
         for elapsedTime in result:
             t = int(elapsedTime[0])
-            t = t - property.SEEK_TIME_OFFSET
-            if (t < time):
+            if (t < 0):
                 continue
-            url = f'https://youtu.be/{video_id}'
-            search_result.append(f'{url}?t={t}')
-            time = t + 100
+            elif (t > nexttime):
+                seektime = t
+                nexttime = t + 100
+                score = 1
+                for endtime in result:
+                    if (seektime < endtime[0] and endtime[0] < nexttime):
+                        nexttime += 100
+                        score += 1
+                        continue
+                    elif (endtime[0] > nexttime):
+                        break
+                url = f'https://youtu.be/{video_id}'
+                search_result.append(f'{url}?t={seektime - property.SEEK_TIME_OFFSET} score={score}')
+                self.logger.info(f'Search Result {url}?t={seektime - property.SEEK_TIME_OFFSET} score={score}')
         return search_result
         
     
@@ -75,4 +85,4 @@ if __name__ == '__main__':
     logger.addHandler(fh)
 
     cde = ChatDataExtractor()
-    cde.extract_from_keyword(input('keyword:'))
+    cde.extract_from_keyword('U_4GveY98Jk', 'くしゃみ')#,input('keyword:'))

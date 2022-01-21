@@ -255,6 +255,8 @@ class YoutubeCog(commands.Cog):
         if (len(result) == 0):
             await ctx.reply(f'Not Found [{keyword}]')
             return
+        await ctx.reply(f'Found {len(result)} Videos')
+
         for r in result:
             video_id = r[0]
 
@@ -280,6 +282,7 @@ class YoutubeCog(commands.Cog):
             if (urls != ''):
                 embed.add_field(name='search result', value=urls)
                 await ctx.invoke(self.bot.get_command('send_search_output_log'), embed)
+        await ctx.reply(f'Search Finish!')
 
     @chat_search.command(name='petit')
     async def search_petit(self, ctx, *args):
@@ -297,6 +300,7 @@ class YoutubeCog(commands.Cog):
         if (len(result) == 0):
             await ctx.reply(f'Not Found [{keyword}]')
             return
+        await ctx.reply(f'Found {len(result)} Videos')
         for r in result:
             video_id = r[0]
 
@@ -322,6 +326,6 @@ class YoutubeCog(commands.Cog):
             if (urls != ''):
                 embed.add_field(name='search result', value=urls)
                 await ctx.invoke(self.bot.get_command('send_search_output_log'), embed)
-
+        await ctx.reply(f'Search Finish!')
 def setup(bot):
     return bot.add_cog(YoutubeCog(bot))
