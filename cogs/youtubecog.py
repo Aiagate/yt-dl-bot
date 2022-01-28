@@ -204,14 +204,11 @@ class YoutubeCog(commands.Cog):
             embed.set_thumbnail(url=thumbnail_url)
             highlight_url_text = ''
             for highlight in highlight_urls:
-                tmp = highlight_url_text + \
-                    str(datetime.timedelta(
-                        seconds=highlight[0])) + '\t' + highlight[1] + '\n'
-                if len(tmp) < 1024:
-                    highlight_url_text = tmp
+                if len(highlight_url_text + str(datetime.timedelta(seconds=highlight[0])) + '\t' + highlight[1] + '\n') < 1024:
+                    highlight_url_text = highlight_url_text + str(datetime.timedelta(seconds=highlight[0])) + '\t' + highlight[1] + '\n'
                 else:
                     embed.add_field(name="highlight", value=highlight_url_text)
-                    highlight_url_text = tmp
+                    highlight_url_text = str(datetime.timedelta(seconds=highlight[0])) + '\t' + highlight[1] + '\n'
             if highlight_url_text != '':
                 embed.add_field(name="highlight", value=highlight_url_text)
             else:
