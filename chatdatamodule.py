@@ -24,11 +24,11 @@ import property
 
 
 class ChatDataModule():
-    def __init__(self, video_id, url=None, livedetail=None):
+    def __init__(self, video_id, livedetail=None):
         self.logger = getLogger(__name__)
         importlib.reload(importlib)
         importlib.reload(db_connect)
-        self.url = url
+        self.url = 'https://youtu.be/{video_id}'
         self.video_id = video_id
         self.date = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
         # self.db_name = '/mnt/media/Youtube/databases/chatdata_I4I_HJenWkQ.db'

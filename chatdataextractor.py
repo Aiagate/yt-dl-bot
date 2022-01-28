@@ -34,7 +34,7 @@ class ChatDataExtractor():
             video_ids.append(video_id)
         return video_ids
 
-    def extract_from_keyword(self, video_id, keyword):
+    def extract_from_keyword(self, video_id, keyword, minscore=0):
         with DatabaseConnect('youtube_chat') as db:
             try:
                 # self.logger.debug(f'drop table if exists {self.table_name}')
@@ -52,15 +52,16 @@ class ChatDataExtractor():
                 continue
             elif (t > nexttime):
                 seektime = t
-                nexttime = t + 100
+                nexttime = t + 10
                 score = 1
                 for endtime in result:
                     if (seektime < endtime[0] and endtime[0] < nexttime):
-                        nexttime += 100
+                        nexttime += 10
                         score += 1
                         continue
                     elif (endtime[0] > nexttime):
                         break
+                if (score < minscore): break
                 url = f'https://youtu.be/{video_id}'
                 search_result.append(f'{url}?t={seektime - property.SEEK_TIME_OFFSET} score={score}')
                 self.logger.info(f'Search Result {url}?t={seektime - property.SEEK_TIME_OFFSET} score={score}')
