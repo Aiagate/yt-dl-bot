@@ -1,6 +1,7 @@
 #! ./.venv/bin/python
 
 # ---standard library---
+import argparse
 from ast import arg
 from asyncio.log import logger
 import datetime
@@ -166,7 +167,7 @@ class YoutubeCog(commands.Cog):
             await ctx.invoke(self.bot.get_command('send_error_log'), e)
             raise e
         cdm = chatdatamodule.ChatDataModule(
-            video_id=video_id, url=url, livedetail=livedetail)
+            video_id=video_id, livedetail=livedetail)
         '''
         pool = Pool(1)
         try:
@@ -286,7 +287,12 @@ class YoutubeCog(commands.Cog):
 
     @chat_search.command(name='petit')
     async def search_petit(self, ctx, *args):
+
         keyword = args[0]
+        try:
+            minscore = int(args[1])
+        except:
+            minscore = 0
         await ctx.reply('Starting search chat data...')
 
         cde = chatdataextractor.ChatDataExtractor()
@@ -304,7 +310,7 @@ class YoutubeCog(commands.Cog):
         for r in result:
             video_id = r[0]
 
-            fn = partial(cde.extract_from_keyword, video_id, keyword)
+            fn = partial(cde.extract_from_keyword, video_id, keyword, minscore)
             try:
                 result2 = await self.bot.loop.run_in_executor(None, fn)
             except Exception as e:
@@ -314,9 +320,9 @@ class YoutubeCog(commands.Cog):
             embed = Embed(title=f'Search [{keyword}] https://youtu.be/{video_id}',color=0xff0000)
             embed.set_thumbnail(url=f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg")
             urls = ''
-            if (len(result2) == 0):
-                await ctx.reply('data was empty')
-                continue
+            # if (len(result2) == 0):
+            #     await ctx.reply('data was empty')
+            #     continue
             for url in result2:
                 if len(urls + url) < 1024:
                     urls += f'{url}\n'
