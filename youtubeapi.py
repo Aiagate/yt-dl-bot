@@ -60,7 +60,8 @@ class YoutubeApi():
             elif is_live == 'live':
                 is_live = True
             else:
-                raise
+                is_live = False
+                # raise # 何が来るかよくわからんのでFalse
         except:
             raise
         return is_live
