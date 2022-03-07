@@ -29,6 +29,7 @@ class MyBot(commands.Bot):
                 self.load_extension(cog)
                 self.logger.info(f'Success: Cog loaded ({cog})')
             except Exception as e:
+                self.logger.error(e)
                 raise e
                 # traceback.print_exc()
 
@@ -37,15 +38,6 @@ class MyBot(commands.Bot):
         self.logger.info(self.user.name)
         self.logger.info(self.user.id)
         self.logger.info('----------------')
-        with DatabaseConnect(property.DOWNLOAD_DATA) as db:
-            try:
-                db.execute('create table if not exists download' +
-                           property.DOWNLOAD_DATALIST)
-                db.execute('create table if not exists archive' +
-                           property.ARCHIVE_DATALIST)
-            except Exception as e:
-                raise e
-
 
 if __name__ == '__main__':
     logging.basicConfig(
