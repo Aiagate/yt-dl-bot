@@ -1,5 +1,5 @@
 .vscode/
-ydlbot-workspace.code-workspace
+*.code-workspace
 
 __pycache__/
 tmp/
