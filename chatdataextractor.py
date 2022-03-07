@@ -20,7 +20,7 @@ class ChatDataExtractor():
     def __init__(self):
         self.logger = getLogger(__name__)
         self.date = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-        self.table_name = 'chat_data_whitetails'
+        self.table_name = 'yt_chatdata'
     
     def search_video_keyword(self, keyword):
         with DatabaseConnect('youtube_chat') as db:
