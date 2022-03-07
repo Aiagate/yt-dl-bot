@@ -20,7 +20,7 @@ class DatabaseConnect(object):
             # self.cnx: CMySQLConnection = mysql.connector.connect(host=property.SQL_HOST, user=property.SQL_USER, password=property.SQL_PASSWD, database=self.db)
             self.cnx = mysql.connector.connect(host=property.SQL_HOST, user=property.SQL_USER, password=property.SQL_PASSWD, database=self.db, use_pure=True)
             # self.cursor: CMySQLCursor = self.cnx.cursor()
-            self.cursor = self.cnx.cursor()
+            self.cursor = self.cnx.cursor(buffered=True)
         except Exception as e:
             self.cnx = None
             raise e
