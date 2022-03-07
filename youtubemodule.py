@@ -145,8 +145,8 @@ class YoutubeModule():
                 '|': '｜',
                 '?': '？',
             }
-            title = date + '_%(id)s_%(title)s' % info
-            video_title = '%(title)s' % info
+            title = date + '_%(id)s_%(fulltitle)s' % info
+            video_title = '%(fulltitle)s' % info
             title = title.translate(str.maketrans(ng_word))
             video_title = video_title.translate(str.maketrans(ng_word))
             outpath = f'/mnt/cache/{title}.%(ext)s'
