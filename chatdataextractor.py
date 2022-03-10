@@ -25,7 +25,7 @@ class ChatDataExtractor():
     def search_video_keyword(self, keyword):
         with DatabaseConnect('youtube_chat') as db:
             try:
-                db.cursor.execute(f'SELECT video_id FROM {self.table_name} where video_id in (SELECT video_id FROM {self.table_name} where message like \"%{keyword}%\" order by datetime) group by video_id;')
+                db.cursor.execute(f'SELECT DISTINCT video_id FROM {self.table_name} where message like \"%{keyword}%\";')
                 result = db.cursor.fetchall()
             except Exception as e:
                 raise e

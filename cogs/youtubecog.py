@@ -243,7 +243,7 @@ class YoutubeCog(commands.Cog):
         await ctx.reply('Starting search chat data...')
 
         cde = chatdataextractor.ChatDataExtractor()
-        cde.table_name = 'chat_data_whitetails'
+        cde.table_name = 'yt_chatdata'
         fn = partial(cde.search_video_keyword, keyword)
         try:
             result = await self.bot.loop.run_in_executor(None, fn)
