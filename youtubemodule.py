@@ -30,15 +30,15 @@ class YoutubeModule():
         '''
         ライブ配信かアーカイブかによって制限の解除を行うように改良予定
         '''
-        with DatabaseConnect(property.DOWNLOAD_DATA) as db:
-            try:
-                sql = 'select id from download where id = ?'
-                result = db.execute(sql, self.get_videoid(url))
-                if result.fetchall() != []:
-                    message = 'This Video is being downloaded.'
-                    raise OverlappingError(message)
-            except Exception as e:
-                raise e
+        # with DatabaseConnect(property.DOWNLOAD_DATA) as db:
+        #     try:
+        #         sql = 'select id from download where id = ?'
+        #         result = db.execute(sql, self.get_videoid(url))
+        #         if result.fetchall() != []:
+        #             message = 'This Video is being downloaded.'
+        #             raise OverlappingError(message)
+        #     except Exception as e:
+        #         raise e
         
         #重複した動画のダウンロードを制限
         '''
@@ -145,6 +145,7 @@ class YoutubeModule():
                 '|': '｜',
                 '?': '？',
             }
+            info.setdefault('fulltitle', info['title'])
             title = date + '_%(id)s_%(fulltitle)s' % info
             video_title = '%(fulltitle)s' % info
             title = title.translate(str.maketrans(ng_word))
