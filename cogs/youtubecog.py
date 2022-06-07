@@ -15,7 +15,6 @@ from functools import partial
 # ---third party library---
 from discord import Embed, File
 from discord.ext import commands
-import youtube_dl
 
 # ---local library---
 import db_connect
@@ -36,23 +35,6 @@ class YoutubeCog(commands.Cog):
         importlib.reload(youtubeapi)
         importlib.reload(property)
         self.bot = bot
-
-    @staticmethod
-    def ytd_process(url, ydl_ops):
-        with youtube_dl.YoutubeDL(ydl_ops) as ydl:
-            data = ydl.extract_info(url, download=True)
-        return data
-
-    @staticmethod
-    def ytd_info(url, ydl_ops={}):
-        with youtube_dl.YoutubeDL(ydl_ops) as ydl:
-            info = ydl.extract_info(url, download=False)
-            return info
-
-    @staticmethod
-    def ytd_title(self, url):
-        info = self.ytd_info(url)
-        return ('%(title)s' % info)
 
     @staticmethod
     def parse_url(url):
