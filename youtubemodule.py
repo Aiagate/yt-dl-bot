@@ -148,8 +148,10 @@ class YoutubeModule():
             info.setdefault('fulltitle', info['title'])
             title = date + '_%(id)s' % info
             title = title.translate(str.maketrans(ng_word))
-            outpath = f'/mnt/cache/{title}.%(ext)s'
-            # outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
+            tmp_path = property.TMP_PATH
+            if not os.path.exists(tmp_path):
+                os.mkdir(tmp_path)
+            outpath = f'{tmp_path}{title}.%(ext)s'
 
             start_time = now.strftime('%Y/%m/%d %H:%M')
 
@@ -164,29 +166,17 @@ class YoutubeModule():
             with yt_dlp.YoutubeDL(self.ops(info=info, outpath=outpath)) as ydl:
                 info = ydl.extract_info(url, download=True)
 
-            # print(result.get())
-
-            #ダウンロードプロセスによるファイルのロックが解除されるまで待つ
-            # time.sleep(10)
-
-            #ffmpegでmp4コーデックに変換
-            tmp_path = "/mnt/cache/convert/"
-            if not os.path.exists(tmp_path):
-                os.mkdir(tmp_path)
-            stream = ffmpeg.input(outpath % info)
-            # stream = ffmpeg.overwrite_output(stream=stream)
-            # stream = ffmpeg.output(stream, save_path + title + '.mp4', vcodec='copy', acodec='copy')
-            stream = ffmpeg.output(stream, f'{tmp_path}{title}.mp4', vcodec='copy', acodec='aac')
-            ffmpeg.run(stream)
-            os.remove(outpath % info)
-            
             #ファイルをcacheフォルダから移動
-            save_path = "/mnt/media/Youtube/" # + now.strftime('%Y-%m-%d') + '/'
+            save_path = property.SAVE_PATH
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
-            # if not os.path.exists(save_path):
-            #     os.mkdir(save_path)
-            shutil.move(f'{tmp_path}{title}.mp4',  f'{save_path}{title}.mp4')
+            shutil.move(f'{tmp_path}{title}.mp4',  f'{save_path}')
+            if not os.path.exists(save_path):
+                os.mkdir(f"{save_path}metadata/")
+            shutil.move(f'{tmp_path}{title}.info.json',  f'{save_path}metadata/')
+            if not os.path.exists(save_path):
+                os.mkdir(f'{save_path}thumbnail/')
+            shutil.move(f'{tmp_path}{title}.webp',  f'{save_path}thumbnail/')
             return info
             
 
@@ -272,17 +262,33 @@ class YoutubeModule():
             'format': 'bestvideo+bestaudio/best',
             'merge_output_format': 'mkv',
             'noplaylist': True,
-            'keepvideo': False,
             'nooverwrites': True,
+            'keepvideo': False,
             'hls_use_mpegts': True,
+            'writeinfojson': True,
+            'embed_metadata': True,
+            'writethumbnail': True,
+            'embedthumbnail': True,
+            'live_from_start': True,
             'socket_timeout': 300,
-            # 'postprocessors': [{
-            # 'key': 'FFmpegFixupM4a',
-            # 'key': 'FFmpegVideoConvertor',
-            # 'acodec': 'copy',
-            # 'vcodec': 'copy',
-            # 'preferedformat': 'mp4',
-            # }],
+            "fragment_retries": 300,
+            'postprocessor_args': {
+                'videoconvertor': ['-c:v', 'copy']
+            }, 
+            'postprocessors':[
+                {
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                },
+                {
+                    'key': 'FFmpegMetadata',
+                    'add_metadata': True,
+                },
+                {
+                    'key': 'EmbedThumbnail',
+                    'already_have_thumbnail': True,
+                }
+            ],
         }
         return ydl_ops
 
