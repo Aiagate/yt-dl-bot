@@ -182,6 +182,8 @@ class YoutubeModule():
             
             #ファイルをcacheフォルダから移動
             save_path = "/mnt/media/Youtube/" # + now.strftime('%Y-%m-%d') + '/'
+            if not os.path.exists(save_path):
+                os.mkdir(save_path)
             # if not os.path.exists(save_path):
             #     os.mkdir(save_path)
             shutil.move(f'{tmp_path}{title}.mp4',  f'{save_path}{title}.mp4')
