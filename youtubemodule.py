@@ -146,10 +146,8 @@ class YoutubeModule():
                 '?': '？',
             }
             info.setdefault('fulltitle', info['title'])
-            title = date + '_%(id)s_%(fulltitle)s' % info
-            video_title = '%(fulltitle)s' % info
+            title = date + '_%(id)s' % info
             title = title.translate(str.maketrans(ng_word))
-            video_title = video_title.translate(str.maketrans(ng_word))
             outpath = f'/mnt/cache/{title}.%(ext)s'
             # outpath = os.getcwd() + '/tmp/' + title + '.%(ext)s'
 
@@ -184,6 +182,8 @@ class YoutubeModule():
             
             #ファイルをcacheフォルダから移動
             save_path = "/mnt/media/Youtube/" # + now.strftime('%Y-%m-%d') + '/'
+            if not os.path.exists(save_path):
+                os.mkdir(save_path)
             # if not os.path.exists(save_path):
             #     os.mkdir(save_path)
             shutil.move(f'{tmp_path}{title}.mp4',  f'{save_path}{title}.mp4')

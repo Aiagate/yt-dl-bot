@@ -13,7 +13,6 @@ import time
 # ---third party library---
 import ffmpeg
 import matplotlib.pyplot as plt
-from moviepy.editor import *
 from pytchat import create
 from collections import deque
 

@@ -40,10 +40,10 @@ class SystemCog(commands.Cog):
         for cog in args:
             if cog == 'all':
                 for cog in property.INITIAL_EXTENSIONS:
-                    self.bot.reload_extension(cog)
+                    await self.bot.reload_extension(cog)
                     await ctx.send('Success: ' + cog + ' is Reloaded.')
             else:
-                self.bot.reload_extension('cogs.' + cog)
+                await self.bot.reload_extension('cogs.' + cog)
                 await ctx.send('Success: cog.' + cog + ' is Reloaded.')
 
     @cogs_reload.error

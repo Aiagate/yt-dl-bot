@@ -1,4 +1,4 @@
-#! ./.venv/bin/python
+#! .venv/bin/python
 
 # ---standard library---
 import sqlite3
@@ -7,6 +7,7 @@ import logging
 from logging import DEBUG, INFO, Logger, getLogger
 
 # ---third party library---
+import discord
 from discord.ext import commands
 
 # ---local library---
@@ -21,19 +22,19 @@ class MyBot(commands.Bot):
         self.logger = getLogger(__name__)
 
         # スーパークラスのコンストラクタに値を渡して実行。
-        super().__init__(command_prefix)
+        super().__init__(intents=discord.Intents.all(),command_prefix=command_prefix)
 
+
+    async def on_ready(self):
         # Cogをpropartyのリストからロード
         for cog in property.INITIAL_EXTENSIONS:
             try:
-                self.load_extension(cog)
+                await self.load_extension(cog)
                 self.logger.info(f'Success: Cog loaded ({cog})')
             except Exception as e:
                 self.logger.error(e)
                 raise e
                 # traceback.print_exc()
-
-    async def on_ready(self):
         self.logger.info('----------------')
         self.logger.info(self.user.name)
         self.logger.info(self.user.id)
