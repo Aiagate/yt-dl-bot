@@ -109,6 +109,8 @@ class YoutubeModule():
             # except youtube_dl.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
             except yt_dlp.utils.ExtractorError as e: #動画の抽出に失敗した場合は待機するため処理を続行する
                 info = e
+            except KeyError as e: # プレミア公開時のキーエラーを無視
+                info = e
             except Exception as e:
                 raise e
 
