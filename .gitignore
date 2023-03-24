@@ -5,6 +5,8 @@ __pycache__/
 tmp/
 venv/
 .venv/
+dist/
+downloads/
 
 *.db
 *.db-journal
